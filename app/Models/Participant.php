@@ -19,4 +19,9 @@ class Participant extends Model
         'correo',
         'qr_code',
     ];
+
+    public function visits()
+    {
+        return $this->hasMany(Visit::class);
+    }
 }

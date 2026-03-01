@@ -9,7 +9,7 @@ class Stand extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['nombre','encargado'];
+    protected $fillable = ['nombre', 'platillo', 'descripcion', 'encargado'];
 
     public function visits()
     {

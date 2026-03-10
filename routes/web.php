@@ -2,19 +2,31 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return redirect()->route('participants.index');
-});
-
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ParticipantController;
 use App\Http\Controllers\StandController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\ScanController;
 
-Route::resource('participants', ParticipantController::class);
-Route::resource('stands', StandController::class);
+// ── Pública ──────────────────────────────────────────────────
+Route::get('/', [HomeController::class , 'index'])->name('home');
 
-// Registro de visita desde escaneo QR — acepta GET (desde QR físico) y POST (desde AJAX del stand)
-Route::match (['get', 'post'], 'visit', [ParticipantController::class , 'visit'])->name('visit');
+// ── Auth ─────────────────────────────────────────────────────
+Route::get('/login', [AuthController::class , 'showLogin'])->name('login');
+Route::post('/login', [AuthController::class , 'login'])->name('login.post');
+Route::post('/logout', [AuthController::class , 'logout'])->name('logout');
 
-// Reporte
-Route::get('reports', [ReportController::class , 'index'])->name('reports.index');
+// ── Admin ─────────────────────────────────────────────────────
+Route::middleware('role:admin')->group(function () {
+    Route::resource('participants', ParticipantController::class);
+    Route::resource('stands', StandController::class);
+    Route::get('reports', [ReportController::class , 'index'])->name('reports.index');
+});
+
+// ── Scanner + Admin (escaneo de QR) ──────────────────────────
+Route::middleware('role:admin,scanner')->group(function () {
+    // Registro de visita desde escaneo QR — acepta GET (desde QR físico) y POST (desde AJAX del stand)
+    Route::match (['get', 'post'], 'visit', [ParticipantController::class , 'visit'])->name('visit');
+    Route::get('scan', [ScanController::class , 'index'])->name('scan.index');
+});

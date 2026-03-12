@@ -195,6 +195,17 @@ function registerVisit(code) {
             prependSessionRow(data.participante, standName);
             const mc = document.getElementById('manual-code');
             if(mc) mc.value = '';
+            
+            // Show survey modal if survey not completed
+            if (!data.survey_completed) {
+                setTimeout(() => {
+                    document.getElementById('modalSurveyCode').value = data.qr_code;
+                    document.getElementById('modalSurveyName').textContent = data.participante;
+                    document.getElementById('surveyModal').setAttribute('survey-url', data.survey_url);
+                    const modal = new bootstrap.Modal(document.getElementById('surveyModal'));
+                    modal.show();
+                }, 800);
+            }
         }
     })
     .catch(() => showResult(false, 'Error de conexión.'));
@@ -245,3 +256,43 @@ document.getElementById('manual-code').addEventListener('keydown', e => {
 });
 </script>
 @endpush
+
+<!-- SURVEY MODAL -->
+<div class="modal fade" id="surveyModal" tabindex="-1" aria-labelledby="surveyModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="surveyModalLabel">
+                    <i class="bi bi-chat-left-text"></i> Encuesta de Satisfacción
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info mb-4">
+                    <i class="bi bi-info-circle"></i>
+                    <strong class="ms-2">Hola, <span id="modalSurveyName">participante</span>!</strong>
+                    <p class="mb-0 mt-2">
+                        Tu opinión es muy importante. ¿Podrías dedicar 2 minutos para responder una breve encuesta de satisfacción?
+                    </p>
+                </div>
+                <input type="hidden" id="modalSurveyCode">
+                <div class="d-flex gap-2 justify-content-center">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle"></i> Ahora no
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="openSurvey()">
+                        <i class="bi bi-arrow-right-circle"></i> Responder Encuesta
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function openSurvey() {
+    const surveyUrl = document.getElementById('surveyModal').getAttribute('survey-url');
+    window.open(surveyUrl, '_blank');
+    bootstrap.Modal.getInstance(document.getElementById('surveyModal')).hide();
+}
+</script>

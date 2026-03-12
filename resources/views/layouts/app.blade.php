@@ -45,6 +45,63 @@
             display: flex;
             flex-direction: column;
             box-shadow: 4px 0 24px rgba(0,0,0,.25);
+            transition: transform 0.3s ease;
+        }
+
+        /* Hamburger button — hidden on desktop */
+        .sidebar-toggle {
+            display: none;
+            position: fixed;
+            top: 12px;
+            left: 12px;
+            z-index: 200;
+            background: var(--blue-dark);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            width: 42px;
+            height: 42px;
+            font-size: 1.4rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,.15);
+            cursor: pointer;
+        }
+
+        /* Overlay behind sidebar on mobile */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0,0,0,.4);
+            z-index: 99;
+        }
+
+        /* ── RESPONSIVE: mobile / tablet ── */
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+                z-index: 200;
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            .sidebar-overlay.active {
+                display: block;
+            }
+            .sidebar-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .main-content {
+                margin-left: 0 !important;
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+            .topbar {
+                padding-left: 64px !important;
+            }
         }
 
         .sidebar-brand {
@@ -200,9 +257,11 @@
         /* ── MAIN ── */
         .main-content {
             margin-left: var(--sidebar-w);
+            width: calc(100% - var(--sidebar-w));
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            overflow-x: hidden;
         }
 
         .topbar {
@@ -302,8 +361,8 @@
 
         /* ── PRINT ── */
         @media print {
-            .sidebar, .topbar, .no-print { display: none !important; }
-            .main-content { margin-left: 0 !important; }
+            .sidebar, .topbar, .no-print, .sidebar-toggle, .sidebar-overlay { display: none !important; }
+            .main-content { margin-left: 0 !important; width: 100% !important; }
             .page-wrapper { padding: 0; }
         }
     </style>
@@ -312,10 +371,18 @@
 </head>
 <body>
 
+<!-- SIDEBAR TOGGLE (hamburger) -->
+<button class="sidebar-toggle" id="sidebarToggle" aria-label="Abrir menú">
+    <i class="bi bi-list"></i>
+</button>
+
+<!-- SIDEBAR OVERLAY (click outside to close on mobile) -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
 <!-- SIDEBAR -->
-<nav class="sidebar">
+<nav class="sidebar" id="sidebar">
     <div class="sidebar-brand">
-        <img src="{{ asset('images/logo-francofonia.png') }}" alt="Logo" class="sidebar-logo">
+        <img src="{{ asset('images/logo-francofonia.png') }}" alt="Logo Francofonía" class="sidebar-logo">
         <div class="sidebar-brand-text">
             <h1>Francofonía</h1>
             <small>Sistema de Estands</small>
@@ -377,11 +444,17 @@
             @else
                 {{-- ── USER: solo inicio ── --}}
                 <div class="nav-section-title">Mi cuenta</div>
-
-                <a href="{{ route('home') }}" class="sidebar-link">
-                    <i class="bi bi-house-fill"></i> Inicio
-                </a>
+                @if(!request()->routeIs('visitors.dashboard') && !request()->routeIs('survey.show'))
+                    <a href="{{ route('home') }}" class="sidebar-link">
+                        <i class="bi bi-house-fill"></i> Inicio
+                    </a>
+                @endif
             @endif
+        @else
+            <div class="nav-section-title">Acceso</div>
+            <a href="#" class="sidebar-link" data-bs-toggle="modal" data-bs-target="#loginModal">
+                <i class="bi bi-box-arrow-in-right"></i> Iniciar sesión
+            </a>
         @endauth
     </div>
 
@@ -456,6 +529,24 @@
 
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+(function() {
+    var sidebar = document.getElementById('sidebar');
+    var toggle  = document.getElementById('sidebarToggle');
+    var overlay = document.getElementById('sidebarOverlay');
+
+    function openSidebar()  { sidebar.classList.add('open');    overlay.classList.add('active'); }
+    function closeSidebar() { sidebar.classList.remove('open'); overlay.classList.remove('active'); }
+
+    toggle.addEventListener('click', function() {
+        sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
+    });
+
+    overlay.addEventListener('click', closeSidebar);
+})();
+</script>
+
 @stack('scripts')
 </body>
 </html>

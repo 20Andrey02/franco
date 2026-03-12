@@ -3,597 +3,197 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Francofonía — Evento Cultural</title>
-
-    <!-- Google Fonts -->
+    <title>Francofonía - Evento Cultural</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
-    <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-
     <style>
-        :root {
-            --blue-dark: #002395;
-            --blue-mid:  #0035b5;
-            --white-fr:  #ffffff;
-            --red-fr:    #ED2939;
-            --gold:      #d4af37;
-        }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            min-height: 100vh;
-            background: #0a0e2e;
-            overflow-x: hidden;
-        }
-
-        /* ── Animated background ── */
-        .bg-animated {
-            position: fixed;
-            inset: 0;
-            z-index: 0;
-            background:
-                radial-gradient(ellipse at 20% 20%, rgba(0, 35, 149, 0.6) 0%, transparent 50%),
-                radial-gradient(ellipse at 80% 80%, rgba(237, 41, 57, 0.4) 0%, transparent 50%),
-                radial-gradient(ellipse at 50% 50%, rgba(212, 175, 55, 0.15) 0%, transparent 60%);
-        }
-
-        .bg-animated::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: repeating-linear-gradient(
-                0deg,
-                transparent,
-                transparent 2px,
-                rgba(255,255,255,0.015) 2px,
-                rgba(255,255,255,0.015) 4px
-            );
-        }
-
-        /* ── Navbar ── */
-        .navbar-franco {
-            position: relative;
-            z-index: 10;
-            padding: 20px 40px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-bottom: 1px solid rgba(255,255,255,0.08);
-            backdrop-filter: blur(10px);
-        }
-
-        .navbar-brand-franco {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            text-decoration: none;
-        }
-
-        .brand-flag {
-            width: 4px;
-            height: 32px;
-            border-radius: 2px;
-            background: linear-gradient(to bottom, #002395 33%, #fff 33% 66%, #ED2939 66%);
-        }
-
-        .brand-text {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.4rem;
-            font-weight: 800;
-            color: #fff;
-            letter-spacing: 0.5px;
-        }
-
-        .brand-sub {
-            font-size: 0.7rem;
-            color: rgba(255,255,255,0.5);
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            font-family: 'Inter', sans-serif;
-            display: block;
-            margin-top: -2px;
-        }
-
-        .btn-login-nav {
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.2);
-            color: #fff;
-            border-radius: 50px;
-            padding: 9px 24px;
-            font-size: 0.875rem;
-            font-weight: 600;
-            text-decoration: none;
-            backdrop-filter: blur(10px);
-            transition: all 0.2s;
-        }
-
-        .btn-login-nav:hover {
-            background: rgba(255,255,255,0.2);
-            color: #fff;
-            transform: translateY(-1px);
-        }
-
-        /* ── HERO ── */
-        .hero {
-            position: relative;
-            z-index: 5;
-            min-height: calc(100vh - 81px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .hero-inner {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            padding: 60px 24px;
-            max-width: 860px;
-            margin: 0 auto;
-        }
-
-        /* ── Logo container ── */
-        .logo-wrapper {
-            position: relative;
-            width: 180px;
-            height: 180px;
-            margin-bottom: 40px;
-            animation: floatLogo 5s ease-in-out infinite;
-        }
-
-        .logo-wrapper::before {
-            content: '';
-            position: absolute;
-            inset: -10px;
-            border-radius: 50%;
-            background: conic-gradient(
-                #002395 0deg 72deg,
-                #fff 72deg 144deg,
-                #ED2939 144deg 216deg,
-                #d4af37 216deg 288deg,
-                #002395 288deg 360deg
-            );
-            opacity: 0.3;
-            filter: blur(18px);
-            animation: rotateShadow 8s linear infinite;
-        }
-
-        .logo-img {
-            width: 180px;
-            height: 180px;
-            object-fit: contain;
-            border-radius: 50%;
-            position: relative;
-            z-index: 2;
-            filter: drop-shadow(0 8px 32px rgba(0,35,149,0.5));
-        }
-
-        @keyframes floatLogo {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-12px); }
-        }
-
-        @keyframes rotateShadow {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-
-        /* ── Text ── */
-        .hero-tag {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(212, 175, 55, 0.15);
-            border: 1px solid rgba(212, 175, 55, 0.35);
-            color: var(--gold);
-            font-size: 0.75rem;
-            font-weight: 600;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            padding: 6px 18px;
-            border-radius: 50px;
-            margin-bottom: 22px;
-        }
-
-        .hero-title {
-            font-family: 'Playfair Display', serif;
-            font-size: clamp(2.8rem, 7vw, 4.8rem);
-            font-weight: 800;
-            color: #fff;
-            line-height: 1.1;
-            margin-bottom: 12px;
-        }
-
-        .hero-title .accent-blue { color: #4d7eff; }
-        .hero-title .accent-red  { color: #ff6b7a; }
-
-        .hero-subtitle {
-            font-size: 1.05rem;
-            color: rgba(255,255,255,0.6);
-            font-weight: 400;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            margin-bottom: 24px;
-        }
-
-        .hero-desc {
-            font-size: 1.05rem;
-            color: rgba(255,255,255,0.72);
-            line-height: 1.8;
-            max-width: 600px;
-            margin: 0 auto 40px;
-        }
-
-        /* ── CTA Buttons ── */
-        .cta-group {
-            display: flex;
-            gap: 16px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .btn-cta-primary {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            background: linear-gradient(135deg, var(--blue-dark) 0%, #1a4de8 100%);
-            color: #fff;
-            border: none;
-            border-radius: 50px;
-            padding: 15px 34px;
-            font-size: 1rem;
-            font-weight: 700;
-            text-decoration: none;
-            box-shadow: 0 8px 32px rgba(0, 35, 149, 0.5);
-            transition: all 0.25s;
-        }
-
-        .btn-cta-primary:hover {
-            color: #fff;
-            transform: translateY(-2px);
-            box-shadow: 0 16px 40px rgba(0, 35, 149, 0.65);
-        }
-
-        .btn-cta-secondary {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            background: rgba(255,255,255,0.07);
-            color: rgba(255,255,255,0.85);
-            border: 1px solid rgba(255,255,255,0.18);
-            border-radius: 50px;
-            padding: 15px 34px;
-            font-size: 1rem;
-            font-weight: 600;
-            text-decoration: none;
-            backdrop-filter: blur(8px);
-            transition: all 0.25s;
-        }
-
-        .btn-cta-secondary:hover {
-            background: rgba(255,255,255,0.14);
-            color: #fff;
-            transform: translateY(-2px);
-        }
-
-        /* ── Info Cards ── */
-        .info-section {
-            position: relative;
-            z-index: 5;
-            padding: 80px 24px;
-            background: rgba(255,255,255,0.03);
-            border-top: 1px solid rgba(255,255,255,0.07);
-        }
-
-        .info-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 24px;
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-
-        .info-card {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 20px;
-            padding: 32px 28px;
-            text-align: center;
-            backdrop-filter: blur(10px);
-            transition: all 0.3s;
-        }
-
-        .info-card:hover {
-            background: rgba(255,255,255,0.09);
-            transform: translateY(-4px);
-            border-color: rgba(255,255,255,0.2);
-        }
-
-        .info-card-icon {
-            width: 64px;
-            height: 64px;
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.8rem;
-            margin: 0 auto 20px;
-        }
-
-        .icon-blue { background: rgba(0,35,149,0.4); color: #7ba7ff; }
-        .icon-gold  { background: rgba(212,175,55,0.2); color: var(--gold); }
-        .icon-red   { background: rgba(237,41,57,0.2); color: #ff8090; }
-
-        .info-card h3 {
-            font-size: 1.05rem;
-            font-weight: 700;
-            color: #fff;
-            margin-bottom: 10px;
-        }
-
-        .info-card p {
-            font-size: 0.875rem;
-            color: rgba(255,255,255,0.6);
-            line-height: 1.7;
-        }
-
-        /* ── Roles Section ── */
-        .roles-section {
-            position: relative;
-            z-index: 5;
-            padding: 80px 24px;
-        }
-
-        .section-title {
-            text-align: center;
-            font-family: 'Playfair Display', serif;
-            font-size: 2rem;
-            font-weight: 700;
-            color: #fff;
-            margin-bottom: 8px;
-        }
-
-        .section-sub {
-            text-align: center;
-            color: rgba(255,255,255,0.5);
-            font-size: 0.9rem;
-            margin-bottom: 48px;
-        }
-
-        .roles-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-            gap: 24px;
-            max-width: 900px;
-            margin: 0 auto;
-        }
-
-        .role-card {
-            border-radius: 20px;
-            padding: 36px 28px;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-            transition: all 0.3s;
-        }
-
-        .role-card::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border-radius: 20px;
-            padding: 1px;
-            background: linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0.04));
-            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            -webkit-mask-composite: xor;
-            mask-composite: exclude;
-        }
-
-        .role-card:hover { transform: translateY(-6px); }
-
-        .role-admin   { background: linear-gradient(135deg, rgba(0,35,149,0.4), rgba(0,70,200,0.2)); }
-        .role-scanner { background: linear-gradient(135deg, rgba(212,175,55,0.3), rgba(184,134,11,0.15)); }
-        .role-user    { background: linear-gradient(135deg, rgba(237,41,57,0.25), rgba(192,57,43,0.12)); }
-
-        .role-icon {
-            font-size: 2.8rem;
-            margin-bottom: 16px;
-            display: block;
-        }
-
-        .role-card h3 {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: #fff;
-            margin-bottom: 10px;
-        }
-
-        .role-card p {
-            font-size: 0.875rem;
-            color: rgba(255,255,255,0.65);
-            line-height: 1.7;
-        }
-
-        .role-badge {
-            display: inline-block;
-            font-size: 0.68rem;
-            font-weight: 700;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            padding: 4px 14px;
-            border-radius: 50px;
-            margin-top: 16px;
-        }
-
-        .badge-admin   { background: rgba(0,35,149,0.5); color: #7ba7ff; border: 1px solid rgba(77,126,255,0.3); }
-        .badge-scanner { background: rgba(212,175,55,0.25); color: var(--gold); border: 1px solid rgba(212,175,55,0.3); }
-        .badge-user    { background: rgba(237,41,57,0.25); color: #ff8090; border: 1px solid rgba(255,128,144,0.3); }
-
-        /* ── Footer ── */
-        .footer {
-            position: relative;
-            z-index: 5;
-            text-align: center;
-            padding: 32px 24px;
-            border-top: 1px solid rgba(255,255,255,0.07);
-            color: rgba(255,255,255,0.3);
-            font-size: 0.8rem;
-        }
-
-        /* ── Alert ── */
-        .alert-home {
-            max-width: 500px;
-            margin: 0 auto 24px;
-            padding: 12px 20px;
-            border-radius: 12px;
-            font-size: 0.875rem;
-            font-weight: 500;
-        }
-
-        .alert-danger-home {
-            background: rgba(237,41,57,0.15);
-            border: 1px solid rgba(237,41,57,0.35);
-            color: #ff8090;
-        }
-
-        @media (max-width: 576px) {
-            .navbar-franco { padding: 16px 20px; }
-            .logo-wrapper { width: 140px; height: 140px; }
-            .logo-img { width: 140px; height: 140px; }
-        }
+        :root { --blue-dark: #002395; --blue-mid: #0035b5; --red-fr: #ED2939; }
+        * { box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #f5f7fa 0%, #e8eef7 100%); min-height: 100vh; }
+        .navbar-custom { background: linear-gradient(135deg, var(--blue-dark) 0%, var(--blue-mid) 100%); box-shadow: 0 4px 20px rgba(0, 35, 149, 0.2); padding: 1rem 0; }
+        .navbar-brand-custom { font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 800; background: linear-gradient(135deg, white, #ffd700); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-decoration: none; }
+        .btn-login-nav { background: white; color: var(--blue-dark); border: none; padding: 10px 24px; border-radius: 8px; font-weight: 700; font-size: 0.95rem; cursor: pointer; transition: all 0.3s ease; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-login-nav:hover { background: #f0f0f0; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0, 35, 149, 0.3); }
+        .hero-section { padding: 60px 0; text-align: center; }
+        .hero-title { font-family: 'Playfair Display', serif; font-size: 4rem; font-weight: 800; background: linear-gradient(135deg, var(--blue-dark), var(--red-fr)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 20px; }
+        .hero-subtitle { font-size: 1.3rem; color: #555; margin-bottom: 40px; max-width: 700px; margin-left: auto; margin-right: auto; }
+        .collage-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; padding: 40px; margin: 0; }
+        .collage-item { background: white; border-radius: 12px; padding: 30px 20px; text-align: center; box-shadow: 0 4px 15px rgba(0, 35, 149, 0.08); transition: all 0.3s ease; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 180px; }
+        .collage-item:hover { transform: translateY(-8px); box-shadow: 0 12px 30px rgba(0, 35, 149, 0.15); }
+        .collage-emoji { font-size: 3.5rem; margin-bottom: 12px; }
+        .collage-text { font-size: 0.85rem; font-weight: 600; color: var(--blue-dark); }
+        .info-section { background: white; border-radius: 16px; padding: 50px 40px; margin: 60px 0; box-shadow: 0 8px 30px rgba(0, 35, 149, 0.1); }
+        .section-title { font-family: 'Playfair Display', serif; font-size: 2.2rem; font-weight: 800; color: var(--blue-dark); margin-bottom: 30px; text-align: center; }
+        .about-text { font-size: 1.1rem; line-height: 1.8; color: #555; margin-bottom: 40px; text-align: justify; }
+        .highlights { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; margin-top: 40px; }
+        .highlight-card { background: linear-gradient(135deg, rgba(0, 35, 149, 0.05), rgba(237, 41, 57, 0.05)); border: 2px solid transparent; border-radius: 12px; padding: 25px; transition: all 0.3s ease; }
+        .highlight-card:hover { border-color: var(--blue-dark); transform: translateX(5px); }
+        .highlight-card h4 { color: var(--blue-dark); font-weight: 700; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+        .highlight-card p { color: #666; margin: 0; line-height: 1.6; }
+        .stands-section { margin: 60px 0; }
+        .stands-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; }
+        .stand-showcase { background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0, 35, 149, 0.1); transition: all 0.3s ease; border: 2px solid #f0f0f0; }
+        .stand-showcase:hover { transform: translateY(-8px); box-shadow: 0 12px 40px rgba(0, 35, 149, 0.2); border-color: var(--blue-dark); }
+        .stand-icon { background: linear-gradient(135deg, var(--blue-dark), var(--blue-mid)); color: white; font-size: 3rem; padding: 30px; text-align: center; }
+        .stand-content { padding: 20px; }
+        .stand-content h5 { color: var(--blue-dark); font-weight: 700; margin-bottom: 10px; }
+        .stand-content p { color: #666; margin: 0; font-size: 0.9rem; }
+        .cta-section { background: linear-gradient(135deg, var(--blue-dark), var(--blue-mid)); border-radius: 16px; padding: 60px 40px; text-align: center; margin: 60px 0; color: white; }
+        .cta-title { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 800; margin-bottom: 20px; }
+        .cta-subtitle { font-size: 1.1rem; margin-bottom: 30px; opacity: 0.95; }
+        .btn-cta { background: white; color: var(--blue-dark); border: none; padding: 15px 40px; border-radius: 10px; font-weight: 700; font-size: 1rem; cursor: pointer; transition: all 0.3s ease; margin: 0 10px; text-decoration: none; display: inline-block; }
+        .btn-cta:hover { background: #f0f0f0; transform: translateY(-3px); }
+        .btn-cta-secondary { background: rgba(255,255,255,0.2); color: white; border: 2px solid white; }
+        .btn-cta-secondary:hover { background: white; color: var(--blue-dark); }
+        .modal-content { border: none; border-radius: 16px; }
+        .modal-header { background: linear-gradient(135deg, var(--blue-dark), var(--blue-mid)); color: white; border: none; padding: 30px; }
+        .modal-title { font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 800; }
+        .role-selector { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px; margin: 30px 0; }
+        .role-card { background: linear-gradient(135deg, rgba(0, 35, 149, 0.05), rgba(77, 126, 255, 0.05)); border: 2px solid #ddd; border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.3s ease; text-decoration: none; color: inherit; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .role-card:hover { border-color: var(--blue-dark); transform: translateY(-5px); }
+        .role-icon { font-size: 2.5rem; margin-bottom: 10px; }
+        .role-name { font-weight: 700; color: var(--blue-dark); margin-bottom: 5px; }
+        .role-desc { font-size: 0.8rem; color: #666; }
+        .footer { background: #f8f9fa; border-top: 1px solid #e0e0e0; padding: 40px 0; text-align: center; color: #666; }
+        @media (max-width: 768px) { .hero-title { font-size: 2.5rem; } .role-selector { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
-
-<div class="bg-animated"></div>
-
-<!-- NAVBAR -->
-<nav class="navbar-franco">
-    <a href="{{ route('home') }}" class="navbar-brand-franco">
-        <div class="brand-flag"></div>
-        <div>
-            <span class="brand-text">Francofonía</span>
-            <span class="brand-sub">Evento Cultural</span>
-        </div>
-    </a>
-    @auth
-        <a href="{{ auth()->user()->isAdmin() ? route('participants.index') : route('scan.index') }}" class="btn-login-nav">
-            <i class="bi bi-grid-1x2-fill me-1"></i> Panel
-        </a>
-    @else
-        <a href="{{ route('login') }}" class="btn-login-nav">
-            <i class="bi bi-box-arrow-in-right me-1"></i> Iniciar sesión
-        </a>
-    @endauth
-</nav>
-
-<!-- HERO -->
-<section class="hero">
-    <div class="hero-inner">
-
-        @if(session('error'))
-            <div class="alert-home alert-danger-home">
-                <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ session('error') }}
-            </div>
-        @endif
-
-        <!-- Logo -->
-        <div class="logo-wrapper">
-            <img src="{{ asset('images/logo-francofonia.png') }}" alt="Logo Francofonía" class="logo-img">
-        </div>
-
-        <span class="hero-tag">
-            <i class="bi bi-star-fill" style="font-size:.6rem;"></i>
-            Evento Cultural Francófono
-        </span>
-
-        <h1 class="hero-title">
-            <span class="accent-blue">Franco</span><span class="accent-red">fonía</span>
-        </h1>
-
-        <p class="hero-subtitle">Festival de las lenguas &amp; culturas</p>
-
-        <p class="hero-desc">
-            Un encuentro único donde la cultura francófona cobra vida. Explora gastronomía,
-            arte, música y tradiciones de los países francófonos del mundo. Regístrate,
-            obtén tu código QR y visita los estands de nuestros estudiantes.
-        </p>
-
-        <div class="cta-group">
-            <a href="{{ route('login') }}" class="btn-cta-primary">
-                <i class="bi bi-box-arrow-in-right"></i> Acceder al sistema
+    <nav class="navbar navbar-custom">
+        <div class="container d-flex align-items-center justify-content-between">
+            <a class="navbar-brand navbar-brand-custom d-flex align-items-center" href="/">
+                <img src="{{ asset('images/logo-francofonia.png') }}" alt="Francofonía" style="height:48px; width:48px; margin-right:12px; vertical-align:middle; display:inline-block;">
+                <span style="font-size:1.8rem; font-weight:800; color:#ffd700; font-family:'Playfair Display',serif;">Francofonía</span>
             </a>
-            <a href="#info" class="btn-cta-secondary">
-                <i class="bi bi-info-circle"></i> Más información
-            </a>
+            <button class="btn-login-nav" data-bs-toggle="modal" data-bs-target="#loginModal">
+                <i class="bi bi-box-arrow-in-right"></i> Iniciar sesión
+            </button>
+        </div>
+    </nav>
+
+    <section class="hero-section">
+        <div class="container">
+            <div class="d-flex justify-content-center align-items-center mb-4">
+                <img src="{{ asset('images/logo-francofonia.png') }}" alt="Francofonía" style="height:80px; width:80px; margin-right:24px;">
+                <span class="hero-title" style="font-size:4rem; font-family:'Playfair Display',serif; color:#7a2c7a;">Francofonía</span>
+            </div>
+            <p class="hero-subtitle">Celebra la riqueza cultural de la Francofonía. Una experiencia única de gastronomía, tradición y encuentro entre culturas francófonas.</p>
+        </div>
+    </section>
+
+    <section class="collage-grid">
+        <div class="collage-item"><div class="collage-emoji">🥐</div><div class="collage-text">Croissants</div></div>
+        <div class="collage-item"><div class="collage-emoji">🇫🇷</div><div class="collage-text">Francia</div></div>
+        <div class="collage-item"><div class="collage-emoji">🧇</div><div class="collage-text">Waffles</div></div>
+        <div class="collage-item"><div class="collage-emoji">🍽️</div><div class="collage-text">Gastronomía</div></div>
+        <div class="collage-item"><div class="collage-emoji">🎵</div><div class="collage-text">Música</div></div>
+        <div class="collage-item"><div class="collage-emoji">🎨</div><div class="collage-text">Arte</div></div>
+        <div class="collage-item"><div class="collage-emoji">🗼</div><div class="collage-text">Cultura</div></div>
+        <div class="collage-item"><div class="collage-emoji">🍷</div><div class="collage-text">Vinos</div></div>
+    </section>
+
+    <section class="info-section">
+        <div class="container">
+            <h2 class="section-title">✨ Sobre el Evento</h2>
+            <p class="about-text">Francofonía es un vibrante evento cultural que celebra la diversidad y riqueza del mundo francófono. Durante esta experiencia única, explora diferentes stands temáticos donde conocerás la gastronomía, el arte, la música y las tradiciones de países francófonos.</p>
+            <div class="highlights">
+                <div class="highlight-card">
+                    <h4><i class="bi bi-shop"></i> Múltiples Stands</h4>
+                    <p>Descubre experiencias culinarias y culturales en cada punto del evento.</p>
+                </div>
+                <div class="highlight-card">
+                    <h4><i class="bi bi-award"></i> Tradiciones Auténticas</h4>
+                    <p>Vive la autenticidad de las tradiciones francófonas con expertos.</p>
+                </div>
+                <div class="highlight-card">
+                    <h4><i class="bi bi-heart"></i> Experiencia Interactiva</h4>
+                    <p>Participa, degusta, aprende y comparte con otros visitantes.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="stands-section">
+        <div class="container">
+            <h2 class="section-title">🎪 Stands Disponibles</h2>
+            <div class="stands-grid">
+                <div class="stand-showcase">
+                    <div class="stand-icon">🥐</div>
+                    <div class="stand-content">
+                        <h5>Stand Francia</h5>
+                        <p>Croissants recién horneados y especialidades francesas auténticas.</p>
+                    </div>
+                </div>
+                <div class="stand-showcase">
+                    <div class="stand-icon">🧇</div>
+                    <div class="stand-content">
+                        <h5>Stand Bélgica</h5>
+                        <p>Waffles belgas tradicionales con toppings gourmet.</p>
+                    </div>
+                </div>
+                <div class="stand-showcase">
+                    <div class="stand-icon">🧀</div>
+                    <div class="stand-content">
+                        <h5>Stand Suiza</h5>
+                        <p>Fondue de queso suizo y especialidades alpinas.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-section">
+        <div class="container">
+            <h2 class="cta-title">¡Sé Parte de Francofonía!</h2>
+            <p class="cta-subtitle">Registra tu visita, explora los stands y comparte tu experiencia</p>
+            <button class="btn-cta" data-bs-toggle="modal" data-bs-target="#loginModal">Inicia Sesión</button>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 Francofonía. Celebrando la Diversidad Cultural.</p>
+        </div>
+    </footer>
+
+    <div class="modal fade" id="loginModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Iniciar Sesión</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    @if($errors->any())
+                        <div class="alert alert-danger">
+                            {{ $errors->first('email') }}
+                        </div>
+                    @endif
+                    <form method="POST" action="{{ route('login.post') }}">
+                        @csrf
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Correo electrónico</label>
+                            <input type="email" class="form-control" id="email" name="email" value="{{ old('email') }}" required autofocus>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Contraseña</label>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Ingresar</button>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
-</section>
 
-<!-- INFO CARDS -->
-<section class="info-section" id="info">
-    <div class="info-grid">
-        <div class="info-card">
-            <div class="info-card-icon icon-blue">
-                <i class="bi bi-qr-code"></i>
-            </div>
-            <h3>Registro con QR</h3>
-            <p>Cada participante recibe un código QR único para ser identificado al visitar los estands del evento.</p>
-        </div>
-        <div class="info-card">
-            <div class="info-card-icon icon-gold">
-                <i class="bi bi-grid-3x3-gap-fill"></i>
-            </div>
-            <h3>Estands Culturales</h3>
-            <p>Descubre hasta 5 estands gestionados por estudiantes con gastronomía y cultura de países francófonos.</p>
-        </div>
-        <div class="info-card">
-            <div class="info-card-icon icon-red">
-                <i class="bi bi-bar-chart-fill"></i>
-            </div>
-            <h3>Seguimiento en Tiempo Real</h3>
-            <p>Los organizadores monitorean las visitas en vivo y generan reportes del estand más visitado.</p>
-        </div>
-    </div>
-</section>
-
-<!-- ROLES SECTION -->
-<section class="roles-section">
-    <h2 class="section-title">¿Cómo funciona el sistema?</h2>
-    <p class="section-sub">Tres tipos de acceso según tu rol en el evento</p>
-
-    <div class="roles-grid">
-        <div class="role-card role-admin">
-            <span class="role-icon">🛡️</span>
-            <h3>Administrador</h3>
-            <p>Gestiona participantes, estands y reportes. Acceso completo al sistema de control del evento.</p>
-            <span class="role-badge badge-admin">Admin</span>
-        </div>
-        <div class="role-card role-scanner">
-            <span class="role-icon">📷</span>
-            <h3>Escáner de QR</h3>
-            <p>Personal de los estands que escanea los códigos QR de los participantes para registrar sus visitas.</p>
-            <span class="role-badge badge-scanner">Scanner</span>
-        </div>
-        <div class="role-card role-user">
-            <span class="role-icon">🎟️</span>
-            <h3>Participante</h3>
-            <p>Asistente al evento que utiliza su código QR para visitar los diferentes estands culturales.</p>
-            <span class="role-badge badge-user">Usuario</span>
-        </div>
-    </div>
-</section>
-
-<footer class="footer">
-    &copy; {{ date('Y') }} Francofonía — Evento Cultural &nbsp;|&nbsp; Sistema de Gestión de Estands
-</footer>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    @if($errors->any())
+    <script>
+        var loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+        loginModal.show();
+    </script>
+    @endif
 </body>
 </html>

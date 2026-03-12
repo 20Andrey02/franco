@@ -12,6 +12,10 @@ class Visit extends Model
     public $timestamps = false;
 
     protected $fillable = ['participant_id','stand_id','visit_time'];
+    
+    protected $casts = [
+        'visit_time' => 'datetime',
+    ];
 
     public function participant()
     {

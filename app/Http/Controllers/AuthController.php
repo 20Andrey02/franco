@@ -37,16 +37,26 @@ class AuthController extends Controller
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return redirect()->route('home');
+        return redirect('/');
     }
 
     private function redirectByRole(string $role)
     {
-        return match ($role) {
-                'admin' => redirect()->route('participants.index'),
-                'scanner' => redirect()->route('scan.index'),
-                'user' => redirect()->route('home'),
-                default => redirect()->route('home'),
-            };
+        if ($role === 'admin') {
+            return redirect()->route('participants.index');
+        }
+        if ($role === 'scanner') {
+            return redirect()->route('scan.index');
+        }
+        if ($role === 'user') {
+            // Buscar participante por correo
+            $user = Auth::user();
+            $participant = \App\Models\Participant::where('correo', $user->email)->first();
+            if ($participant && $participant->qr_code) {
+                return redirect()->route('visitors.dashboard', ['code' => $participant->qr_code]);
+            }
+            return redirect()->route('home')->with('error', 'No se encontró tu registro de participante.');
+        }
+        return redirect()->route('home');
     }
 }

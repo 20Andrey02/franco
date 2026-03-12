@@ -6,11 +6,11 @@ use Illuminate\Http\Request;
 use App\Models\Participant;
 use App\Models\Visit;
 use App\Models\Stand;
+use App\Models\Survey;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class ParticipantController extends Controller
 {
-    const MAX_VISITS = 5; // visitas totales máximas por participante
     const COOLDOWN_MIN = 30; // minutos de espera antes de volver al mismo stand
 
     public function index()
@@ -106,19 +106,7 @@ class ParticipantController extends Controller
             return response()->json(['success' => false, 'message' => 'Estand no encontrado.'], 404);
         }
 
-        // Regla 1: máximo MAX_VISITS visitas totales
-        $totalVisits = Visit::where('participant_id', $participant->id)->count();
-        $remaining = self::MAX_VISITS - $totalVisits;
-
-        if ($remaining <= 0) {
-            return response()->json([
-                'success' => false,
-                'message' => "Este participante ya alcanzó el límite de " . self::MAX_VISITS . " visitas.",
-                'visitas_restantes' => 0,
-            ]);
-        }
-
-        // Regla 2: cooldown por stand
+        // Regla de cooldown por stand (solo una visita cada 30 minutos al mismo stand)
         $lastVisit = Visit::where('participant_id', $participant->id)
             ->where('stand_id', $stand_id)
             ->orderByDesc('visit_time')
@@ -131,7 +119,7 @@ class ParticipantController extends Controller
                 return response()->json([
                     'success' => false,
                     'message' => "Este participante ya visitó este estand. Puede volver en {$waitMin} min.",
-                    'visitas_restantes' => $remaining,
+                    'visitas_restantes' => null,
                 ]);
             }
         }
@@ -142,11 +130,20 @@ class ParticipantController extends Controller
             'visit_time' => now(),
         ]);
 
+        // Check if survey has been completed
+        $surveyClosed = Survey::where('participant_id', $participant->id)->exists();
+
+        // Count total visits for this participant
+        $totalVisits = Visit::where('participant_id', $participant->id)->count();
+
         return response()->json([
             'success' => true,
             'message' => "✓ Visita registrada: {$participant->nombre} {$participant->paterno}",
             'participante' => $participant->nombre . ' ' . $participant->paterno,
-            'visitas_restantes' => $remaining - 1,
+            'visitas_totales' => $totalVisits,
+            'qr_code' => $participant->qr_code,
+            'survey_completed' => $surveyClosed,
+            'survey_url' => route('survey.show', ['code' => $participant->qr_code]),
         ]);
     }
 }

@@ -1,0 +1,32 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::table('surveys', function (Blueprint $table) {
+            if (!Schema::hasColumn('surveys', 'comentarios')) {
+                $table->text('comentarios')->nullable()->after('q5');
+            }
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::table('surveys', function (Blueprint $table) {
+            if (Schema::hasColumn('surveys', 'comentarios')) {
+                $table->dropColumn('comentarios');
+            }
+        });
+    }
+};

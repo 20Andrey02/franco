@@ -1,3 +1,35 @@
+{{--
+|--------------------------------------------------------------------------
+| VISTA: layouts/app.blade.php  (Layout Principal / Master Layout)
+|--------------------------------------------------------------------------
+|
+| DESCRIPCIÓN:
+|   Este es el "layout maestro" de toda la aplicación. Todas las vistas del
+|   panel de administración heredan de esta plantilla usando @extends('layouts.app').
+|   Aquí se define:
+|     - El <head> con CSS (Bootstrap 5, Bootstrap Icons, fuentes Inter y Playfair Display)
+|     - La barra lateral (sidebar) con navegación según el ROL del usuario
+|     - La barra superior (topbar) con el título de la página y botón de logout
+|     - El área de contenido donde se inyecta cada vista hija con @yield('content')
+|     - Estilos de impresión (@media print) para ocultar sidebar/topbar al imprimir
+|
+| SECCIONES BLADE DISPONIBLES:
+|   @yield('title')       → Título de la pestaña del navegador
+|   @yield('page-title')  → Título que aparece en la topbar
+|   @stack('styles')      → Para inyectar CSS adicional desde vistas hijas con @push('styles')
+|   @yield('content')     → Contenido principal de cada página
+|   @stack('scripts')     → Para inyectar JS adicional desde vistas hijas con @push('scripts')
+|
+| ROLES:
+|   - admin:   Ve todas las opciones (Participantes, Estands, Reportes, Encuestas, Escanear)
+|   - scanner: Solo ve la opción de Escanear QR
+|
+| NO OLVIDAR:
+|   - Los assets CSS/JS se cargan localmente con asset() (NO CDN) para funcionar en LAN sin internet
+|   - Si se cambian los colores del tema, modificar las variables CSS :root al inicio del <style>
+|   - El sidebar se colapsa en móvil y se controla con JavaScript al final del archivo
+|   - auth()->user() se usa para verificar el rol y mostrar/ocultar opciones del menú
+--}}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -6,14 +38,12 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Francofonía') — Sistema de Estands</title>
 
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
+    <!-- Local Fonts -->
+    <link href="{{ asset('css/fonts-local.css') }}" rel="stylesheet">
     <!-- Bootstrap 5 -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{{ asset('css/bootstrap.min.css') }}" rel="stylesheet">
     <!-- Bootstrap Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="{{ asset('css/bootstrap-icons.min.css') }}" rel="stylesheet">
 
     <style>
         :root {
@@ -556,7 +586,7 @@
 </div>
 
 <!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
 
 <script>
 (function() {

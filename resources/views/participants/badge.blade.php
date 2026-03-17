@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gafete — {{ $participant->nombre }} {{ $participant->paterno }}</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="{{ asset('css/bootstrap-icons.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/fonts-local.css') }}" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Playfair+Display:wght@700;800&display=swap');
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
 

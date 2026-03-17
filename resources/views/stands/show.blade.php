@@ -148,7 +148,7 @@
 
 @push('scripts')
 {{-- html5-qrcode --}}
-<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<script src="{{ asset('js/html5-qrcode.min.js') }}"></script>
 <script>
 const STAND_ID   = {{ $stand->id }};
 const CSRF_TOKEN = document.querySelector('meta[name="csrf-token"]').content;
@@ -197,7 +197,7 @@ function registerVisit(code) {
     .then(r => r.json())
     .then(data => {
         showResult(data.success,
-            data.message + (data.success ? ' — <b>Visitas restantes: ' + data.visitas_restantes + '</b>' : ''));
+            data.message + (data.success ? ' — <b>Visitas totales: ' + data.visitas_totales + '</b>' : ''));
         if (data.success) {
             prependVisitRow(data.participante);
             document.getElementById('manual-code').value = '';
@@ -214,9 +214,16 @@ let html5Qr = null;
 
 function startScanner() {
     if (html5Qr) return;
+
+    // La cámara requiere HTTPS o localhost en navegadores móviles
+    if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+        showResult(false, '⚠️ La cámara requiere HTTPS. En este dispositivo usa la pestaña "Código manual".<br><small>Para habilitar la cámara, accede al sitio por HTTPS o desde localhost.</small>');
+        return;
+    }
+
     html5Qr = new Html5Qrcode("qr-reader");
     Html5Qrcode.getCameras().then(cameras => {
-        if (!cameras.length) { showResult(false, 'No se encontró cámara.'); return; }
+        if (!cameras.length) { showResult(false, 'No se encontró cámara. Usa la pestaña "Código manual".'); return; }
         html5Qr.start(
             { facingMode: 'environment' },
             { fps: 10, qrbox: { width: 250, height: 250 } },
@@ -234,8 +241,24 @@ function startScanner() {
                 }
             },
             null
-        ).catch(e => showResult(false, 'Error al iniciar cámara: ' + e));
-    }).catch(() => showResult(false, 'No se pudo acceder a la cámara.'));
+        ).catch(e => {
+            let msg = 'Error al iniciar cámara. ';
+            if (e.toString().includes('NotAllowedError') || e.toString().includes('Permission')) {
+                msg = 'Permiso de cámara denegado. Permite el acceso en la configuración de tu navegador.';
+            } else if (e.toString().includes('NotFoundError')) {
+                msg = 'No se encontró cámara en este dispositivo.';
+            } else if (e.toString().includes('NotReadableError') || e.toString().includes('Could not start')) {
+                msg = 'La cámara está en uso por otra aplicación.';
+            }
+            showResult(false, msg + ' Usa la pestaña "Código manual".');
+        });
+    }).catch(e => {
+        let msg = 'No se pudo acceder a la cámara.';
+        if (e.toString().includes('NotAllowedError') || e.toString().includes('Permission')) {
+            msg = 'Permiso de cámara denegado. Permite el acceso en la configuración de tu navegador.';
+        }
+        showResult(false, msg + ' Usa la pestaña "Código manual".');
+    });
 }
 
 function stopScanner() {

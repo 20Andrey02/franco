@@ -48,7 +48,7 @@
                             @endif
                         </td>
                         <td>
-                            <span class="badge-visits">{{ $p->visits_count }}/5</span>
+                            <span class="badge-visits">{{ $p->visits_count }}</span>
                         </td>
                         <td>
                             @if($p->qr_code)

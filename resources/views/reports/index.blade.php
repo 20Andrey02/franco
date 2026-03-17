@@ -381,7 +381,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach(App\Models\Visit::with(['participant','stand'])->orderBy('visit_time','desc')->limit(100)->get() as $visit)
+                        @foreach($paginatedVisits as $visit)
                             <tr>
                                 <td>{{ $visit->participant->nombre ?? '—' }} {{ $visit->participant->paterno ?? '' }}</td>
                                 <td>{{ $visit->stand->nombre ?? '—' }}</td>
@@ -390,17 +390,6 @@
                         @endforeach
                     </tbody>
                 </table>
-                <hr>
-                <h6>Timeline visual</h6>
-                <div style="max-height:300px; overflow-y:auto;">
-                    @foreach(App\Models\Visit::with(['participant','stand'])->orderBy('visit_time','desc')->limit(30)->get() as $visit)
-                        <div class="timeline-item mb-3">
-                            <span class="timeline-time">{{ $visit->visit_time ? $visit->visit_time->format('d/m/Y H:i') : '—' }}</span>
-                            <span class="timeline-stand">{{ $visit->stand->nombre ?? '—' }}</span>
-                            <span class="timeline-user">— {{ $visit->participant->nombre ?? '—' }} {{ $visit->participant->paterno ?? '' }}</span>
-                        </div>
-                    @endforeach
-                </div>
             </div>
             <div id="tab-stand" style="display:none;">
                 <h5>Visitas por estand</h5>
@@ -413,7 +402,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach(App\Models\Visit::with(['participant','stand'])->orderBy('visit_time','desc')->limit(100)->get() as $visit)
+                        @foreach($paginatedVisits as $visit)
                             <tr>
                                 <td>{{ $visit->stand->nombre ?? '—' }}</td>
                                 <td>{{ $visit->participant->nombre ?? '—' }} {{ $visit->participant->paterno ?? '' }}</td>
@@ -422,19 +411,13 @@
                         @endforeach
                     </tbody>
                 </table>
-                <hr>
-                <h6>Timeline visual</h6>
-                <div style="max-height:300px; overflow-y:auto;">
-                    @foreach(App\Models\Visit::with(['participant','stand'])->orderBy('visit_time','desc')->limit(30)->get() as $visit)
-                        <div class="timeline-item mb-3">
-                            <span class="timeline-time">{{ $visit->visit_time ? $visit->visit_time->format('d/m/Y H:i') : '—' }}</span>
-                            <span class="timeline-user">{{ $visit->participant->nombre ?? '—' }} {{ $visit->participant->paterno ?? '' }}</span>
-                            <span class="timeline-stand">— {{ $visit->stand->nombre ?? '—' }}</span>
-                        </div>
-                    @endforeach
-                </div>
             </div>
         </div>
+        @if($paginatedVisits->hasPages())
+        <div class="d-flex justify-content-center mt-3">
+            {{ $paginatedVisits->links() }}
+        </div>
+        @endif
     </div>
 </div>
 
@@ -450,7 +433,7 @@
 @endsection
 
 @push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script src="{{ asset('js/chart.umd.min.js') }}"></script>
 <script>
 // ── Tab switcher ──
 function showTab(tab) {

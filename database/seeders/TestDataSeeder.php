@@ -1,4 +1,28 @@
 <?php
+/*
+|--------------------------------------------------------------------------
+| Seeder: TestDataSeeder
+|--------------------------------------------------------------------------
+| Crea datos FICTICIOS de prueba para desarrollo y demostración.
+| NO es para producción — son datos inventados para probar el sistema.
+|
+| ¿QUÉ CREA?
+|   1. 20 participantes ficticios con nombres reales de la región
+|   2. Un usuario (role='user') por cada participante (contraseña = su QR)
+|   3. Visitas aleatorias (3-6 estands por participante)
+|   4. Encuestas con calificaciones variadas y comentarios opcionales
+|
+| SE EJECUTA CON:
+|   php artisan db:seed           → corre todos los seeders
+|   php artisan db:seed --class=TestDataSeeder → solo este
+|
+| COMPORTAMIENTO: Usa firstOrCreate para no duplicar datos si se corre
+|   más de una vez. Es "idempotente" (ejecutarlo N veces da el mismo resultado).
+|
+| NO OLVIDAR: Estos datos son para pruebas. En el evento real, los
+|   participantes se registran desde el formulario público.
+|--------------------------------------------------------------------------
+*/
 
 namespace Database\Seeders;
 
@@ -8,13 +32,16 @@ use App\Models\User;
 use App\Models\Stand;
 use App\Models\Survey;
 use App\Models\Visit;
-use Carbon\Carbon;
+use Carbon\Carbon;   // Librería para manejar fechas fácilmente
 
 class TestDataSeeder extends Seeder
 {
     public function run(): void
     {
-        // ── Participantes de prueba ──────────────────────────────
+        // ═══════════════════════════════════════════════════════════
+        // SECCIÓN 1: Crear 20 participantes ficticios
+        // Nombres y correos inventados pero realistas
+        // ═══════════════════════════════════════════════════════════
         $participantsData = [
             ['nombre' => 'María',    'paterno' => 'López',     'materno' => 'García',    'ciudad' => 'Gutiérrez Zamora', 'municipio' => 'Gutiérrez Zamora', 'sexo' => 'F', 'correo' => 'maria.lopez@gmail.com'],
             ['nombre' => 'Carlos',   'paterno' => 'Hernández', 'materno' => 'Ruiz',      'ciudad' => 'Papantla',         'municipio' => 'Papantla',         'sexo' => 'M', 'correo' => 'carlos.hdz@gmail.com'],
@@ -38,54 +65,67 @@ class TestDataSeeder extends Seeder
             ['nombre' => 'Héctor',   'paterno' => 'Salazar',   'materno' => 'Peña',      'ciudad' => 'Gutiérrez Zamora', 'municipio' => 'Gutiérrez Zamora', 'sexo' => 'M', 'correo' => 'hector.salazar@outlook.com'],
         ];
 
+        // Obtener todos los estands (deben existir, StandSeeder corre antes)
         $stands = Stand::all();
-        $counter = 1;
+        $counter = 1;  // Contador para generar QR codes \u00fanicos
 
         foreach ($participantsData as $data) {
+            // Generar c\u00f3digo QR: FRANCO-000101, FRANCO-000102, etc.
+            // str_pad rellena con ceros a la izquierda hasta 6 d\u00edgitos
             $qrCode = 'FRANCO-' . str_pad($counter + 100, 6, '0', STR_PAD_LEFT);
 
+            // firstOrCreate: busca por 'correo', si no existe lo crea
+            // array_merge combina los datos del participante + su qr_code
             $participant = Participant::firstOrCreate(
                 ['correo' => $data['correo']],
                 array_merge($data, ['qr_code' => $qrCode])
             );
 
-            // Crear usuario asociado
+            // Crear un usuario vinculado al participante
+            // La contrase\u00f1a es el MISMO c\u00f3digo QR (para que puedan hacer login)
             User::firstOrCreate(
-                ['email' => $data['correo']],
+                ['email' => $data['correo']],   // email del User = correo del Participant
                 [
                     'name' => $data['nombre'] . ' ' . $data['paterno'],
                     'email' => $data['correo'],
-                    'password' => bcrypt($participant->qr_code),
-                    'role' => 'user',
+                    'password' => bcrypt($participant->qr_code),  // Contrase\u00f1a = QR code
+                    'role' => 'user',           // Rol de visitante
                 ]
             );
 
             $counter++;
         }
 
-        // ── Visitas de prueba ────────────────────────────────────
-        $participants = Participant::all();
+        // \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+        // SECCI\u00d3N 2: Crear visitas aleatorias de prueba\n        // Simula que cada participante visit\u00f3 entre 3 y 6 estands\n        // \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+        $participants = Participant::all();\n        // Fecha base: 20 de marzo de 2026 a las 10:00 AM (d\u00eda del evento)
         $baseDate = Carbon::create(2026, 3, 20, 10, 0, 0);
 
         foreach ($participants as $participant) {
             // Cada participante visita entre 3 y 6 stands aleatorios
             $visitCount = rand(3, min(6, $stands->count()));
-            $visitedStands = $stands->random($visitCount);
+            $visitedStands = $stands->random($visitCount);  // Selecci\u00f3n aleatoria
             $minuteOffset = 0;
 
             foreach ($visitedStands as $stand) {
-                $minuteOffset += rand(5, 20);
+                $minuteOffset += rand(5, 20);  // 5 a 20 minutos entre cada visita
 
                 Visit::firstOrCreate([
                     'participant_id' => $participant->id,
                     'stand_id' => $stand->id,
                 ], [
+                    // copy() crea una copia del Carbon para no modificar el original
+                    // addMinutes() suma minutos para simular horarios diferentes
                     'visit_time' => $baseDate->copy()->addMinutes($minuteOffset + ($participant->id * 8)),
                 ]);
             }
         }
 
-        // ── Encuestas de prueba ──────────────────────────────────
+        // \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+        // SECCI\u00d3N 3: Crear encuestas de satisfacci\u00f3n de prueba
+        // Calificaciones variadas (1-5) con comentarios opcionales
+        // \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+        // Comentarios opcionales (null = no dej\u00f3 comentario)
         $comentarios = [
             '¡Excelente evento! Los platillos estuvieron deliciosos.',
             'Me encantó la crème brûlée, fue mi favorita de toda la feria.',
@@ -109,7 +149,8 @@ class TestDataSeeder extends Seeder
             'Los canapés estuvieron elegantes y sabrosos, muy profesional.',
         ];
 
-        // Ratings predeterminados (variados, realistas)
+        // Calificaciones predefinidas: arreglos de [q1, q2, q3, q4, q5]
+        // Variadas para que las estad\u00edsticas se vean realistas (no todo 5/5)
         $ratings = [
             [5, 5, 4, 5, 5],
             [4, 5, 5, 4, 5],
@@ -133,24 +174,26 @@ class TestDataSeeder extends Seeder
             [5, 5, 4, 4, 5],
         ];
 
+        // Crear una encuesta por participante con calificaciones y comentarios variados
         foreach ($participants as $index => $participant) {
-            $i = $index % count($ratings);
+            $i = $index % count($ratings);  // Ciclar entre los ratings disponibles
 
             Survey::firstOrCreate(
-                ['participant_id' => $participant->id],
+                ['participant_id' => $participant->id],  // Solo una encuesta por participante
                 [
-                    'q1' => $ratings[$i][0],
-                    'q2' => $ratings[$i][1],
-                    'q3' => $ratings[$i][2],
-                    'q4' => $ratings[$i][3],
-                    'q5' => $ratings[$i][4],
-                    'comentarios' => $comentarios[$i] ?? null,
+                    'q1' => $ratings[$i][0],             // Experiencia general
+                    'q2' => $ratings[$i][1],             // Comida y bebidas
+                    'q3' => $ratings[$i][2],             // Organizaci\u00f3n
+                    'q4' => $ratings[$i][3],             // Recomendaci\u00f3n
+                    'q5' => $ratings[$i][4],             // Repetir\u00eda
+                    'comentarios' => $comentarios[$i] ?? null,  // null si no hay comentario
                 ]
             );
         }
 
+        // Mensaje de confirmaci\u00f3n en consola al terminar
         if ($this->command) {
-            $this->command->info('✓ Datos de prueba creados: ' . $participants->count() . ' participantes, visitas y encuestas.');
+            $this->command->info('\u2713 Datos de prueba creados: ' . $participants->count() . ' participantes, visitas y encuestas.');
         }
     }
 }

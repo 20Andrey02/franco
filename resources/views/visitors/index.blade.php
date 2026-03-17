@@ -5,13 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel de Visitantes — Francofonía</title>
 
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+    <!-- Local Fonts -->
+    <link href="{{ asset('css/fonts-local.css') }}" rel="stylesheet">
     <!-- Bootstrap 5 -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{{ asset('css/bootstrap.min.css') }}" rel="stylesheet">
     <!-- Bootstrap Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="{{ asset('css/bootstrap-icons.min.css') }}" rel="stylesheet">
 
     <style>
         :root {
@@ -432,8 +431,8 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ asset('js/html5-qrcode.min.js') }}"></script>
     <script>
         (function() {
             const btnToggle = document.getElementById('btnToggleCamera');
@@ -486,6 +485,14 @@
                     html5QrCode = new Html5Qrcode("qr-reader");
                 }
 
+                // La cámara requiere HTTPS o localhost en navegadores móviles
+                if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+                    qrReaderDiv.style.display = 'none';
+                    btnToggle.innerHTML = '<i class="bi bi-camera"></i> Escanear con Cámara';
+                    showStatus('⚠️ La cámara requiere conexión HTTPS. Por favor ingresa tu código manualmente abajo.', 'error');
+                    return;
+                }
+
                 showStatus('Iniciando cámara...', 'info');
 
                 html5QrCode.start(
@@ -502,6 +509,8 @@
                         showStatus('Permiso de cámara denegado. Permite el acceso en la configuración de tu navegador.', 'error');
                     } else if (err.toString().includes('NotFoundError')) {
                         showStatus('No se encontró cámara en este dispositivo.', 'error');
+                    } else if (err.toString().includes('NotReadableError') || err.toString().includes('Could not start')) {
+                        showStatus('La cámara está en uso por otra aplicación. Ciérrala e intenta de nuevo.', 'error');
                     } else {
                         showStatus('No se pudo acceder a la cámara. Intenta usar el código manual.', 'error');
                     }

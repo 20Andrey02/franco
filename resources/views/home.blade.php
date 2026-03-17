@@ -1,13 +1,43 @@
+{{--
+|--------------------------------------------------------------------------
+| VISTA: home.blade.php  (Página Principal Pública)
+|--------------------------------------------------------------------------
+|
+| DESCRIPCIÓN:
+|   Página de inicio pública del evento "Foire des Saveurs de la Francophonie".
+|   NO requiere autenticación. Cualquier persona puede verla.
+|   Contiene:
+|     - Sección hero con título del evento y fecha (20 de marzo de 2026)
+|     - Tarjetas "flip" (voltean al pasar el mouse) mostrando cada stand con su platillo
+|     - Modal de login para que admin/scanner puedan iniciar sesión
+|     - Enlace al portal de visitantes para que participantes accedan con su QR
+|
+| RUTA:       GET /  (nombre: 'home')
+| CONTROLADOR: HomeController@index
+|
+| VARIABLES QUE RECIBE:
+|   $stands → Colección de todos los stands (Stand::all()) para mostrar en las flip cards
+|
+| DIRECTIVAS BLADE USADAS:
+|   @foreach  → Para iterar los stands y crear las tarjetas
+|   @csrf     → Token de seguridad en el formulario de login del modal
+|   @if/@else → Para mostrar/ocultar elementos según autenticación
+|
+| NO OLVIDAR:
+|   - Esta vista es STANDALONE (no usa @extends), tiene su propio <html> completo
+|   - Las fuentes se cargan localmente desde public/css/fonts-local.css
+|   - Si se agregan más stands, las tarjetas se generan automáticamente con el @foreach
+|   - El modal de login envía POST a route('login') con 'email' y 'password'
+--}}
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Premier foire des Saveurs de la Francophonie</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="{{ asset('css/fonts-local.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/bootstrap-icons.min.css') }}" rel="stylesheet">
     <style>
         :root { --blue-dark: #002395; --blue-mid: #0035b5; --red-fr: #ED2939; }
         * { box-sizing: border-box; }
@@ -291,11 +321,11 @@
     </footer>
 
     <div class="modal fade" id="loginModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">Iniciar Sesión</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     @if($errors->any())
@@ -303,29 +333,29 @@
                             {{ $errors->first('email') }}
                         </div>
                     @endif
-                    <form method="POST" action="{{ route('login.post') }}">
+                    <form method="POST" action="{{ route('login.post') }}" id="loginForm">
                         @csrf
                         <div class="mb-3">
-                            <label for="email" class="form-label">Correo electrónico</label>
-                            <input type="email" class="form-control" id="email" name="email" value="{{ old('email') }}" required autofocus>
+                            <label for="loginEmail" class="form-label">Correo electrónico</label>
+                            <input type="email" class="form-control" id="loginEmail" name="email" value="{{ old('email') }}" required autocomplete="email">
                         </div>
                         <div class="mb-3">
-                            <label for="password" class="form-label">Contraseña</label>
+                            <label for="modalPassword" class="form-label">Contraseña</label>
                             <div class="input-group">
-                                <input type="password" class="form-control" id="modalPassword" name="password" required>
+                                <input type="password" class="form-control" id="modalPassword" name="password" required autocomplete="current-password">
                                 <button class="btn btn-outline-secondary" type="button" id="toggleModalPassword">
                                     <i class="bi bi-eye-fill"></i>
                                 </button>
                             </div>
                         </div>
-                        <button type="submit" class="btn btn-primary w-100">Ingresar</button>
+                        <button type="submit" class="btn btn-primary w-100 py-3" style="font-size:1.1rem;">Ingresar</button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
     <script>
         document.getElementById('toggleModalPassword').addEventListener('click', function () {
             const pwd = document.getElementById('modalPassword');

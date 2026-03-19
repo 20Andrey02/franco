@@ -32,7 +32,7 @@
 |   - user@franco.mx / password (user)
 |
 | Los participantes también tienen cuenta User con:
-|   - email = su correo / password = su código QR (ej: FRANCO-000042)
+|   - email = su correo / password = su código QR (ej: FR-042)
 |
 | NO OLVIDAR: Si agregas un nuevo rol, actualizar:
 |   1. El middleware CheckRole (app/Http/Middleware/CheckRole.php)

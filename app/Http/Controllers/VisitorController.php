@@ -45,7 +45,7 @@ class VisitorController extends Controller
 
     /**
      * Muestra el dashboard personalizado del visitante.
-     * Recibe el código QR como parámetro: /visitors/dashboard?code=FRANCO-XXXXXX
+     * Recibe el código QR como parámetro: /visitors/dashboard?code=FR-XXX
      *
      * DATOS QUE CALCULA Y ENVÍA A LA VISTA:
      *   - $participant: datos del participante
@@ -57,7 +57,7 @@ class VisitorController extends Controller
      */
     public function dashboard(Request $request)
     {
-        $code = $request->query('code'); // Obtener ?code=FRANCO-XXXXXX de la URL
+        $code = $request->query('code'); // Obtener ?code=FR-XXX de la URL
 
         // Si no viene el código, redirigir al índice de visitantes
         if (!$code) {
@@ -88,8 +88,8 @@ class VisitorController extends Controller
             return [
                 'id' => $stand->id,
                 'nombre' => $stand->nombre,
-                'platillo' => 'Especialidad local',        // Texto genérico para la tarjeta
-                'descripcion' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+                'platillo' => $stand->platillo ?: 'Platillo francés',
+                'descripcion' => $stand->descripcion ?: 'Delicioso platillo de la gastronomía francesa.',
                 'encargado' => $stand->encargado,
                 'visited' => $visits->where('stand_id', $stand->id)->count() > 0,  // true si ya lo visitó
                 'last_visit' => $visits->where('stand_id', $stand->id)->first()?->visit_time,

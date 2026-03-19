@@ -11,11 +11,11 @@
 | 3. Si son correctas → regenera sesión y redirige según su rol:
 |    - admin   → /participants (lista de participantes)
 |    - scanner → /scan (escáner QR)
-|    - user    → /visitors/dashboard?code=FRANCO-XXXXXX (su panel personal)
+|    - user    → /visitors/dashboard?code=FR-XXX (su panel personal)
 | 4. Si son incorrectas → regresa al formulario con error
 |
 | NOTA IMPORTANTE: La contraseña para usuarios tipo "user" (participantes)
-| es su código QR (ej: FRANCO-000101). Se crea automáticamente al registrar
+| es su código QR (ej: FR-101). Se crea automáticamente al registrar
 | al participante en ParticipantController@store.
 |
 | CUENTAS DE PRUEBA:

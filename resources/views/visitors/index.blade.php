@@ -379,7 +379,7 @@
                                     class="form-control"
                                     id="code"
                                     name="code"
-                                    placeholder="Ingresa: FRANCO-000001"
+                                    placeholder="Ingresa: FR-001"
                                     required
                                 >
                                 <button class="input-group-text" type="submit">

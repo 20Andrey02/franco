@@ -117,8 +117,8 @@
 </head>
 <body>
     <div class="header">
-        <h1><i class="bi bi-clipboard-check"></i> Reportes de Encuestas Francofonía</h1>
-        <p>Análisis de Satisfacción del Evento Cultural</p>
+        <h1><i class="bi bi-clipboard-check"></i> Reportes de Encuestas — Sabores de la Francofonía</h1>
+        <p>Análisis de Satisfacción del Evento</p>
         <p>Generado: {{ now()->format('d/m/Y H:i') }}</p>
     </div>
 
@@ -154,17 +154,16 @@
                     'q2' => '#28a745',
                     'q3' => '#ffc107',
                     'q4' => '#ed7d31',
-                    'q5' => '#dc3545',
                 ];
             @endphp
             @foreach ($questions as $key => $question)
                 @php
                     $avg = $averages[$key] ?? 0;
-                    $percentage = ($avg / 5) * 100;
+                    $percentage = ($avg / 10) * 100;
                 @endphp
                 <tr>
                     <td>{{ $question }}</td>
-                    <td><strong>{{ number_format($avg, 2) }}/5</strong></td>
+                    <td><strong>{{ number_format($avg, 2) }}/10</strong></td>
                     <td>
                         <div class="progress-bar">
                             <div class="progress-fill" style="width: {{ $percentage }}%; background: {{ $colors[$key] }};">
@@ -188,7 +187,6 @@
                 <th>P2</th>
                 <th>P3</th>
                 <th>P4</th>
-                <th>P5</th>
                 <th>Promedio</th>
                 <th>Fecha</th>
             </tr>
@@ -196,12 +194,12 @@
         <tbody>
             @forelse ($surveys as $survey)
                 @php
-                    $avgScore = ($survey->q1 + $survey->q2 + $survey->q3 + $survey->q4 + $survey->q5) / 5;
-                    if ($avgScore >= 4.5) {
+                    $avgScore = ($survey->q1 + $survey->q2 + $survey->q3 + $survey->q4) / 4;
+                    if ($avgScore >= 9) {
                         $badgeClass = 'rating-excellent';
-                    } elseif ($avgScore >= 4) {
+                    } elseif ($avgScore >= 7) {
                         $badgeClass = 'rating-good';
-                    } elseif ($avgScore >= 3) {
+                    } elseif ($avgScore >= 5) {
                         $badgeClass = 'rating-fair';
                     } else {
                         $badgeClass = 'rating-poor';
@@ -214,7 +212,6 @@
                     <td>{{ $survey->q2 }}</td>
                     <td>{{ $survey->q3 }}</td>
                     <td>{{ $survey->q4 }}</td>
-                    <td>{{ $survey->q5 }}</td>
                     <td>
                         <span class="rating-badge {{ $badgeClass }}">
                             {{ number_format($avgScore, 2) }}
@@ -224,14 +221,14 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="9" style="text-align: center; color: #999;">No hay encuestas registradas</td>
+                    <td colspan="8" style="text-align: center; color: #999;">No hay encuestas registradas</td>
                 </tr>
             @endforelse
         </tbody>
     </table>
 
     <div class="footer">
-        <p>&copy; {{ date('Y') }} Francofonía — Evento Cultural | Sistema de Reportes de Satisfacción</p>
+        <p>&copy; {{ date('Y') }} Sabores de la Francofonía — UTGZ | Sistema de Reportes de Satisfacción</p>
     </div>
 </body>
 </html>

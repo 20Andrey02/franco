@@ -23,7 +23,7 @@
 |   - ciudad, municipio: strings nullable (de dónde viene el participante)
 |   - sexo: enum('M','F','O') con default 'O' (Masculino, Femenino, Otro)
 |   - correo: string único (se usa para vincular con la tabla 'users')
-|   - qr_code: string nullable (se genera después de crear: FRANCO-000042)
+|   - qr_code: string nullable (se genera después de crear: FR-042)
 |
 | NO OLVIDAR: El campo se llama 'correo', NO 'email'. Y 'paterno', NO 'apellido'.
 |   Esto es diferente a la tabla 'users' donde sí se llama 'email'.

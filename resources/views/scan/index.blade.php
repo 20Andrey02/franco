@@ -81,7 +81,7 @@
                     <div class="tab-pane fade" id="panel-manual">
                         <div class="d-flex gap-2">
                             <input type="text" id="manual-code" class="form-control"
-                                   placeholder="Ej. FRANCO-000001" style="text-transform:uppercase;">
+                                   placeholder="Ej. FR-001" style="text-transform:uppercase;">
                             <button onclick="registerVisit(document.getElementById('manual-code').value.trim())"
                                     class="btn btn-franco text-nowrap">
                                 <i class="bi bi-check-circle me-1"></i> Registrar

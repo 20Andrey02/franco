@@ -57,14 +57,14 @@ Route::get('/ncsi.txt', fn () => response('Microsoft NCSI'));
 
 // ── Encuestas (Pública) ─────────────────────────────────────
 // La encuesta es pública porque los visitantes acceden desde un link con su código QR
-// Ejemplo de URL: /survey?code=FRANCO-000101
+// Ejemplo de URL: /survey?code=FR-101
 Route::get('/survey', [SurveyController::class, 'show'])->name('survey.show');     // Mostrar formulario de encuesta
 Route::post('/survey', [SurveyController::class, 'store'])->name('survey.store');   // Guardar respuestas de encuesta
 
 // ── Panel de Visitantes (Pública) ────────────────────────────
 // Los visitantes no usan email/password — se identifican con su código QR
 // /visitors        → página donde ingresan su QR (o lo escanean con cámara)
-// /visitors/dashboard?code=FRANCO-000101 → su dashboard personal con visitas y encuesta
+// /visitors/dashboard?code=FR-101 → su dashboard personal con visitas y encuesta
 Route::get('/visitors', [VisitorController::class, 'index'])->name('visitors.index');
 Route::get('/visitors/dashboard', [VisitorController::class, 'dashboard'])->name('visitors.dashboard');
 
@@ -92,6 +92,9 @@ Route::middleware('role:admin')->group(function () {
     // Estas rutas van ANTES de Route::resource porque si no, Laravel confunde 'badge' con un ID de participante
     Route::get('participants/{participant}/badge', [ParticipantController::class, 'badge'])->name('participants.badge');         // Ver gafete HTML
     Route::get('participants/{participant}/badge-pdf', [ParticipantController::class, 'badgePdf'])->name('participants.badge.pdf'); // Descargar gafete PDF
+    Route::post('participants/{participant}/send-badge', [ParticipantController::class, 'sendBadge'])->name('participants.send.badge'); // Enviar gafete por correo
+    Route::post('participants-send-all', [ParticipantController::class, 'sendBadgeAll'])->name('participants.send.badge.all');      // Enviar gafete a TODOS
+    Route::post('participants-send-selected', [ParticipantController::class, 'sendBadgeSelected'])->name('participants.send.badge.selected'); // Enviar gafete a seleccionados
 
     // -- CRUD completo de Participantes --
     // Route::resource genera estas 7 rutas automáticamente:
@@ -123,7 +126,7 @@ Route::middleware('role:admin')->group(function () {
 Route::middleware('role:admin,scanner')->group(function () {
     // Registro de visita cuando se escanea un QR en un estand
     // Acepta GET (si alguien pone la URL directa) y POST (desde el AJAX del escáner)
-    // Parámetros: code=FRANCO-XXXXXX, stand_id=N
+    // Parámetros: code=FR-XXX, stand_id=N
     // Responde en JSON con el resultado de la visita
     Route::match (['get', 'post'], 'visit', [ParticipantController::class , 'visit'])->name('visit');
 

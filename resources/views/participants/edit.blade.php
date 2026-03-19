@@ -56,9 +56,9 @@
                                    value="{{ old('municipio', $participant->municipio) }}">
                         </div>
                         <div class="col-sm-6">
-                            <label class="form-label">Correo <span class="text-danger">*</span></label>
+                            <label class="form-label">Correo <span class="text-muted">(opcional)</span></label>
                             <input type="email" name="correo" class="form-control"
-                                   value="{{ old('correo', $participant->correo) }}" required>
+                                   value="{{ old('correo', $participant->correo) }}" placeholder="correo@ejemplo.com">
                         </div>
                         <div class="col-sm-6">
                             <label class="form-label">Sexo <span class="text-danger">*</span></label>

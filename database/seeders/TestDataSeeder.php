@@ -70,9 +70,9 @@ class TestDataSeeder extends Seeder
         $counter = 1;  // Contador para generar QR codes \u00fanicos
 
         foreach ($participantsData as $data) {
-            // Generar c\u00f3digo QR: FRANCO-000101, FRANCO-000102, etc.
-            // str_pad rellena con ceros a la izquierda hasta 6 d\u00edgitos
-            $qrCode = 'FRANCO-' . str_pad($counter + 100, 6, '0', STR_PAD_LEFT);
+            // Generar código QR: FR-101, FR-102, etc.
+            // str_pad rellena con ceros a la izquierda hasta 3 dígitos
+            $qrCode = 'FR-' . str_pad($counter + 100, 3, '0', STR_PAD_LEFT);
 
             // firstOrCreate: busca por 'correo', si no existe lo crea
             // array_merge combina los datos del participante + su qr_code

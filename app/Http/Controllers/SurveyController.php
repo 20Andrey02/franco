@@ -24,7 +24,7 @@
 |
 | FLUJO PARA EL PARTICIPANTE:
 |   1. Después de visitar estands, le aparece un botón/link para llenar encuesta
-|   2. La URL incluye su código QR: /survey?code=FRANCO-000042
+|   2. La URL incluye su código QR: /survey?code=FR-042
 |   3. Solo puede llenarla UNA vez (se verifica con Survey::where participant_id)
 |   4. Si ya la llenó, lo redirige al dashboard con mensaje
 |
@@ -47,7 +47,7 @@ class SurveyController extends Controller
 {
     /**
      * Muestra el formulario de encuesta para un participante.
-     * Recibe el código QR del participante como parámetro en la URL: ?code=FRANCO-XXXXXX
+     * Recibe el código QR del participante como parámetro en la URL: ?code=FR-XXX
      *
      * Validaciones antes de mostrar la encuesta:
      *   1. Que venga el parámetro 'code'
@@ -95,11 +95,10 @@ class SurveyController extends Controller
         // Validar todos los campos del formulario
         $data = $request->validate([
             'participant_id' => 'required|exists:participants,id', // Debe existir en la tabla participants
-            'q1' => 'required|integer|between:1,5',                // Cada pregunta: número entero del 1 al 5
-            'q2' => 'required|integer|between:1,5',
-            'q3' => 'required|integer|between:1,5',
-            'q4' => 'required|integer|between:1,5',
-            'q5' => 'required|integer|between:1,5',
+            'q1' => 'required|integer|between:0,10',               // Cada pregunta: número entero del 0 al 10
+            'q2' => 'required|integer|between:0,10',
+            'q3' => 'required|integer|between:0,10',
+            'q4' => 'required|integer|between:0,10',
             'comentarios' => 'nullable|string|max:500',            // Comentarios opcionales (máx 500 caracteres)
         ]);
 
@@ -111,6 +110,12 @@ class SurveyController extends Controller
 
         // Crear la encuesta en la base de datos
         Survey::create($data);
+
+        // Si el usuario logueado es scanner, redirigir al escáner QR
+        if (auth()->check() && auth()->user()->role === 'scanner') {
+            return redirect()->route('scan.index')
+                ->with('success', '¡Encuesta registrada! Continúa escaneando.');
+        }
 
         // Redirigir al dashboard del participante con mensaje de agradecimiento
         $participant = Participant::findOrFail($participant_id);
@@ -130,11 +135,10 @@ class SurveyController extends Controller
         // Calcular promedio de cada pregunta (1.0 a 5.0)
         // avg() → función de SQL que calcula el promedio automáticamente
         $averages = [
-            'q1' => Survey::avg('q1'), // Promedio de la pregunta 1
+            'q1' => Survey::avg('q1'),
             'q2' => Survey::avg('q2'),
             'q3' => Survey::avg('q3'),
             'q4' => Survey::avg('q4'),
-            'q5' => Survey::avg('q5'),
         ];
 
         // Lista de todas las encuestas con datos del participante (paginada, 10 por página)
@@ -153,11 +157,10 @@ class SurveyController extends Controller
 
         // Texto de cada pregunta para mostrar en la vista
         $questions = [
-            'q1' => '¿Qué tal fue tu experiencia en el evento?',
-            'q2' => '¿Disfrutaste de la comida y bebidas?',
-            'q3' => '¿Los stands estaban bien organizados?',
-            'q4' => '¿Recomendarías este evento a otros?',
-            'q5' => '¿Volverías a un evento similar?',
+            'q1' => 'La presentación en francés, ¿fue clara?',
+            'q2' => '¿Cómo califica la atención en cada uno de los stands?',
+            'q3' => '¿Qué tan satisfecho(a) se encuentra con el evento?',
+            'q4' => '¿Recomendarías "Sabores de la Francofonía" a un(a) amigo(a) o familiar?',
         ];
 
         return view('surveys.reports', compact('totalSurveys', 'totalParticipants', 'averages', 'surveys', 'comments', 'questions'));
@@ -190,7 +193,6 @@ class SurveyController extends Controller
             'q2' => Survey::avg('q2'),
             'q3' => Survey::avg('q3'),
             'q4' => Survey::avg('q4'),
-            'q5' => Survey::avg('q5'),
         ];
 
         // Para el PDF traemos TODAS las encuestas (sin paginar)
@@ -201,11 +203,10 @@ class SurveyController extends Controller
 
         // Texto corto de las preguntas (para el encabezado del PDF)
         $questions = [
-            'q1' => 'Experiencia general',
-            'q2' => 'Comida y bebidas',
-            'q3' => 'Organización',
+            'q1' => 'Presentación en francés',
+            'q2' => 'Atención en stands',
+            'q3' => 'Satisfacción con el evento',
             'q4' => 'Recomendación',
-            'q5' => 'Repetiría',
         ];
 
         // Generar PDF a partir de la vista Blade surveys/pdf.blade.php

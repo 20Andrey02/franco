@@ -182,7 +182,7 @@
 
     <div class="badge-body">
         <p class="participant-name">{{ $participant->nombre }} {{ $participant->paterno }} {{ $participant->materno }}</p>
-        <p class="participant-email">{{ $participant->correo }}</p>
+        <p class="participant-email">{{ $loginEmail }}</p>
 
         @if($participant->qr_code)
         <div class="qr-container">
@@ -195,7 +195,7 @@
 
     <div class="badge-footer">
         <strong>Accede a tu dashboard:</strong><br>
-        Correo: <strong>{{ $participant->correo }}</strong><br>
+        Correo: <strong>{{ $loginEmail }}</strong><br>
         Contraseña: <strong>{{ $participant->qr_code }}</strong>
     </div>
 </div>

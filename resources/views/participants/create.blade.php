@@ -60,9 +60,9 @@
                         </div>
 
                         <div class="col-sm-6">
-                            <label class="form-label">Correo electrónico <span class="text-danger">*</span></label>
+                            <label class="form-label">Correo electrónico <span class="text-muted">(opcional)</span></label>
                             <input type="email" name="correo" class="form-control"
-                                   value="{{ old('correo') }}" required placeholder="correo@ejemplo.com">
+                                   value="{{ old('correo') }}" placeholder="correo@ejemplo.com">
                         </div>
                         <div class="col-sm-6">
                             <label class="form-label">Sexo <span class="text-danger">*</span></label>

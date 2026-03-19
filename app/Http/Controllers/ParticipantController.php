@@ -21,13 +21,12 @@
 |   - visit()     → ★ FUNCIÓN CORE ★ Registrar visita cuando escanean un QR en un estand
 |
 | FORMATO DEL QR:
-|   El código QR se genera como: "FRANCO-" + ID con 6 dígitos (ej: FRANCO-000042)
-|   La URL que contiene el QR es: http://IP_DEL_SERVIDOR/visit?code=FRANCO-XXXXXX
+|   El código QR se genera como: "FR-" + ID con 3 dígitos (ej: FR-042)
+|   La URL que contiene el QR es: http://IP_DEL_SERVIDOR/visit?code=FR-XXX
 |
-| COOLDOWN:
-|   Para evitar que alguien escanee el mismo QR muchas veces en un estand,
-|   hay un tiempo de espera (cooldown) de 15 minutos entre visitas al MISMO estand.
-|   Puede visitar OTROS estands inmediatamente.
+| VISITAS:
+|   Se permite visitar el mismo estand varias veces sin restricción.
+|   Cada escaneo se registra como una visita nueva para conteo.
 |
 | NO OLVIDAR: Si cambias la IP del servidor, actualizar APP_URL en el archivo .env
 |             para que los QR apunten a la dirección correcta.
@@ -46,13 +45,11 @@ use App\Models\Stand;          // Modelo de estands (tabla 'stands')
 use App\Models\Survey;         // Modelo de encuestas (tabla 'surveys')
 use SimpleSoftwareIO\QrCode\Facades\QrCode;  // Librería para generar QRs en SVG
 use Barryvdh\DomPDF\Facade\Pdf;             // Librería para generar PDFs
+use Illuminate\Support\Facades\Mail;         // Facade para envío de correos
+use App\Mail\BadgeMail;                      // Mailable del gafete
 
 class ParticipantController extends Controller
 {
-    // Constante: minutos que debe esperar un participante antes de volver al MISMO estand
-    // Se puede cambiar aquí y afecta todo el sistema
-    const COOLDOWN_MIN = 15; // minutos de espera antes de volver al mismo stand
-
     /**
      * Lista todos los participantes con su conteo de visitas.
      * withCount('visits') agrega el campo 'visits_count' con el número de visitas de cada uno.
@@ -83,10 +80,10 @@ class ParticipantController extends Controller
      * FLUJO:
      * 1. Valida los datos del formulario (nombre, paterno, correo, etc.)
      * 2. Crea el registro en la tabla 'participants'
-     * 3. Genera el código QR: "FRANCO-" + ID con ceros a la izquierda
+     * 3. Genera el código QR: "FR-" + ID con ceros a la izquierda (3 dígitos)
      * 4. Crea un User asociado para que el participante pueda loguearse
      *    - email = correo del participante
-     *    - password = código QR (ej: FRANCO-000042) hasheado con bcrypt
+     *    - password = código QR (ej: FR-042) hasheado con bcrypt
      * 5. Redirige al detalle del participante con mensaje de éxito
      */
     public function store(Request $request)
@@ -99,26 +96,31 @@ class ParticipantController extends Controller
             'ciudad' => 'nullable|string|max:100',                 // Ciudad opcional
             'municipio' => 'nullable|string|max:100',              // Municipio opcional
             'sexo' => 'required|in:M,F,O',                         // Sexo: M=Masculino, F=Femenino, O=Otro
-            'correo' => 'required|email|unique:participants,correo', // Email único en la tabla participants
+            'correo' => 'nullable|email|max:255',                   // Email opcional, permite duplicados
         ]);
 
         // Crear el participante en la BD
         $participant = Participant::create($data);
 
-        // Generar QR code: FRANCO-000001, FRANCO-000042, etc.
-        // str_pad agrega ceros a la izquierda para que siempre tenga 6 dígitos
-        $participant->qr_code = 'FRANCO-' . str_pad($participant->id, 6, '0', STR_PAD_LEFT);
+        // Generar QR code: FR-001, FR-042, etc.
+        // str_pad agrega ceros a la izquierda para que siempre tenga 3 dígitos
+        $participant->qr_code = 'FR-' . str_pad($participant->id, 3, '0', STR_PAD_LEFT);
         $participant->save();
 
-        // Crear cuenta de usuario asociada para que pueda loguearse
-        // Su contraseña es el código QR (así el participante puede entrar con su QR)
-        // bcrypt() hashea la contraseña para almacenarla de forma segura
-        User::create([
-            'name'     => $data['nombre'] . ' ' . $data['paterno'],   // Nombre completo
-            'email'    => $data['correo'],                             // Mismo correo que el participante
-            'password' => bcrypt($participant->qr_code),               // Contraseña = código QR hasheado
-            'role'     => 'user',                                       // Rol de usuario normal (visitante)
-        ]);
+        // Si tiene correo personal, se usa ese; si no, se genera uno: fr-001@franco.mx
+        $loginEmail = !empty($data['correo'])
+            ? $data['correo']
+            : strtolower($participant->qr_code) . '@franco.mx';
+
+        // Crear cuenta de usuario — contraseña = código QR
+        User::firstOrCreate(
+            ['email' => $loginEmail],
+            [
+                'name'     => $data['nombre'] . ' ' . $data['paterno'],
+                'password' => bcrypt($participant->qr_code),
+                'role'     => 'user',
+            ]
+        );
 
         // Redirigir al detalle del participante recién creado
         return redirect()->route('participants.show', $participant)
@@ -138,7 +140,7 @@ class ParticipantController extends Controller
         $participant = Participant::with('visits.stand')->findOrFail($id);
 
         // URL que contendrá el QR del gafete
-        // Cuando se escanee, llevará a: /visit?code=FRANCO-XXXXXX
+        // Cuando se escanee, llevará a: /visit?code=FR-XXX
         $qrUrl = url("/visit?code={$participant->qr_code}");
 
         return view('participants.show', compact('participant', 'qrUrl'));
@@ -151,7 +153,10 @@ class ParticipantController extends Controller
     {
         $participant = Participant::findOrFail($id);
         $qrUrl = url("/visit?code={$participant->qr_code}");
-        return view('participants.badge', compact('participant', 'qrUrl'));
+        $loginEmail = !empty($participant->correo)
+            ? $participant->correo
+            : strtolower($participant->qr_code) . '@franco.mx';
+        return view('participants.badge', compact('participant', 'qrUrl', 'loginEmail'));
     }
 
     /**
@@ -166,18 +171,22 @@ class ParticipantController extends Controller
         $participant = Participant::findOrFail($id);
         $qrUrl = url("/visit?code={$participant->qr_code}");
 
-        // Generar QR como SVG (imagen vectorial) con alta corrección de errores ('H')
-        // size(180) → 180 pixeles de ancho/alto
-        // errorCorrection('H') → corrección alta, el QR funciona aunque tenga hasta 30% dañado
+        // Email de login: correo personal si existe, si no fr-001@franco.mx
+        $loginEmail = !empty($participant->correo)
+            ? $participant->correo
+            : strtolower($participant->qr_code) . '@franco.mx';
+
+        // Generar QR como SVG y convertir a base64 para compatibilidad con DomPDF
         $qrSvg = QrCode::size(180)->errorCorrection('H')->generate($qrUrl);
+        $qrBase64 = base64_encode($qrSvg);
 
         // Cargar la vista blade del gafete PDF y pasarle los datos
-        $pdf = Pdf::loadView('participants.badge-pdf', compact('participant', 'qrUrl', 'qrSvg'));
+        $pdf = Pdf::loadView('participants.badge-pdf', compact('participant', 'qrUrl', 'qrBase64', 'loginEmail'));
 
         // Tamaño de papel personalizado en puntos (no es carta ni A4 — es como una tarjeta)
         $pdf->setPaper([0, 0, 340, 500]);
 
-        // Descargar el PDF con nombre: gafete-FRANCO-000042.pdf
+        // Descargar el PDF con nombre: gafete-FR-042.pdf
         $filename = 'gafete-' . $participant->qr_code . '.pdf';
         return $pdf->download($filename);
     }
@@ -206,8 +215,7 @@ class ParticipantController extends Controller
             'ciudad' => 'nullable|string|max:100',
             'municipio' => 'nullable|string|max:100',
             'sexo' => 'required|in:M,F,O',
-            'correo' => 'required|email|unique:participants,correo,' . $participant->id,
-            // El ", $participant->id" al final le dice a Laravel: "ignora este ID al verificar unicidad"
+            'correo' => 'nullable|email|max:255',                   // Email opcional, permite duplicados
         ]);
         $participant->update($data);
         return redirect()->route('participants.show', $participant)
@@ -233,7 +241,7 @@ class ParticipantController extends Controller
      * Se llama desde el escáner QR (scan/index.blade.php) via AJAX (fetch/POST).
      *
      * PARÁMETROS ESPERADOS:
-     *   - code: código QR del participante (ej: "FRANCO-000042")
+     *   - code: código QR del participante (ej: "FR-042")
      *   - stand_id: ID del estand donde se escanea
      *
      * RESPUESTA: JSON con éxito/error + datos del participante
@@ -241,8 +249,7 @@ class ParticipantController extends Controller
      * REGLAS DE NEGOCIO:
      *   1. El código QR debe existir en la tabla participants
      *   2. El stand_id debe existir en la tabla stands
-     *   3. Si el participante ya visitó ESE MISMO estand hace menos de 15 min → error de cooldown
-     *   4. Si todo está bien → crea el registro de visita y retorna JSON con datos
+     *   3. Si todo está bien → crea el registro de visita y retorna JSON con datos
      *
      * NOTA: Esta función responde siempre en JSON porque se llama desde JavaScript (AJAX),
      *       no desde un formulario HTML normal.
@@ -270,27 +277,7 @@ class ParticipantController extends Controller
             return response()->json(['success' => false, 'message' => 'Estand no encontrado.'], 404);
         }
 
-        // ── Verificar cooldown (tiempo de espera entre visitas al MISMO estand) ──
-        // Buscamos la última visita de este participante a ESTE estand específico
-        $lastVisit = Visit::where('participant_id', $participant->id)
-            ->where('stand_id', $stand_id)
-            ->orderByDesc('visit_time')
-            ->first();
-
-        if ($lastVisit) {
-            // Calcular cuántos minutos pasaron desde la última visita
-            $minutesAgo = now()->diffInMinutes($lastVisit->visit_time);
-            if ($minutesAgo < self::COOLDOWN_MIN) {
-                // Aún no pasan los 15 minutos — calcular cuánto falta
-                $waitMin = self::COOLDOWN_MIN - $minutesAgo;
-                return response()->json([
-                    'success' => false,
-                    'message' => "Este participante ya visitó este estand. Puede volver en {$waitMin} min.",
-                ]);
-            }
-        }
-
-        // ── Todo bien — registrar la visita ──
+        // ── Registrar la visita ──
         Visit::create([
             'participant_id' => $participant->id,
             'stand_id' => $stand_id,
@@ -313,5 +300,102 @@ class ParticipantController extends Controller
             'survey_completed' => $surveyClosed,                 // true/false si ya llenó encuesta
             'survey_url' => route('survey.show', ['code' => $participant->qr_code]), // URL para llenar encuesta
         ]);
+    }
+
+    /**
+     * Genera el PDF y el loginEmail de un participante (helper interno).
+     */
+    private function buildBadgePdf(Participant $participant): array
+    {
+        $qrUrl = url("/visit?code={$participant->qr_code}");
+        $loginEmail = !empty($participant->correo)
+            ? $participant->correo
+            : strtolower($participant->qr_code) . '@franco.mx';
+
+        $qrSvg = QrCode::size(180)->errorCorrection('H')->generate($qrUrl);
+        $qrBase64 = base64_encode($qrSvg);
+
+        $pdf = Pdf::loadView('participants.badge-pdf', compact('participant', 'qrUrl', 'qrBase64', 'loginEmail'));
+        $pdf->setPaper([0, 0, 340, 500]);
+
+        return [
+            'content'    => $pdf->output(),
+            'filename'   => 'gafete-' . $participant->qr_code . '.pdf',
+            'loginEmail' => $loginEmail,
+        ];
+    }
+
+    /**
+     * Enviar gafete por correo a UN participante.
+     */
+    public function sendBadge(string $id)
+    {
+        $participant = Participant::findOrFail($id);
+
+        $loginEmail = !empty($participant->correo)
+            ? $participant->correo
+            : strtolower($participant->qr_code) . '@franco.mx';
+
+        // Solo se puede enviar si tiene correo personal (los @franco.mx no son reales)
+        if (empty($participant->correo)) {
+            return back()->with('error', "El participante {$participant->nombre} no tiene correo registrado.");
+        }
+
+        $badge = $this->buildBadgePdf($participant);
+        Mail::to($participant->correo)->send(new BadgeMail($participant, $badge['content'], $badge['filename'], $badge['loginEmail']));
+
+        return back()->with('success', "Gafete enviado a {$participant->correo}");
+    }
+
+    /**
+     * Enviar gafete por correo a TODOS los participantes que tienen correo.
+     */
+    public function sendBadgeAll()
+    {
+        $participants = Participant::whereNotNull('correo')->where('correo', '!=', '')->get();
+        $sent = 0;
+
+        foreach ($participants as $participant) {
+            $badge = $this->buildBadgePdf($participant);
+            Mail::to($participant->correo)->send(new BadgeMail($participant, $badge['content'], $badge['filename'], $badge['loginEmail']));
+            $sent++;
+        }
+
+        return back()->with('success', "Gafete enviado a {$sent} participante(s).");
+    }
+
+    /**
+     * Enviar gafete por correo a participantes SELECCIONADOS (checkboxes).
+     */
+    public function sendBadgeSelected(Request $request)
+    {
+        $ids = $request->input('ids', []);
+        if (empty($ids)) {
+            return back()->with('error', 'No seleccionaste ningún participante.');
+        }
+
+        $participants = Participant::whereIn('id', $ids)
+            ->whereNotNull('correo')
+            ->where('correo', '!=', '')
+            ->get();
+
+        if ($participants->isEmpty()) {
+            return back()->with('error', 'Ninguno de los seleccionados tiene correo registrado.');
+        }
+
+        $sent = 0;
+        foreach ($participants as $participant) {
+            $badge = $this->buildBadgePdf($participant);
+            Mail::to($participant->correo)->send(new BadgeMail($participant, $badge['content'], $badge['filename'], $badge['loginEmail']));
+            $sent++;
+        }
+
+        $skipped = count($ids) - $sent;
+        $msg = "Gafete enviado a {$sent} participante(s).";
+        if ($skipped > 0) {
+            $msg .= " ({$skipped} sin correo, omitidos)";
+        }
+
+        return back()->with('success', $msg);
     }
 }

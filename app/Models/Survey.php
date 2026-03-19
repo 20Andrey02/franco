@@ -43,7 +43,7 @@ class Survey extends Model
      * Campos que se pueden llenar masivamente.
      * q1 a q5 son las 5 preguntas de la encuesta (valores del 1 al 5).
      */
-    protected $fillable = ['participant_id','q1','q2','q3','q4','q5','comentarios'];
+    protected $fillable = ['participant_id','q1','q2','q3','q4','comentarios'];
 
     /**
      * Relación: Esta encuesta PERTENECE A un participante.
@@ -61,28 +61,28 @@ class Survey extends Model
      */
     public function getAverageScore(): float
     {
-        return ($this->q1 + $this->q2 + $this->q3 + $this->q4 + $this->q5) / 5;
+        return ($this->q1 + $this->q2 + $this->q3 + $this->q4) / 4;
     }
 
     /**
      * Convierte el promedio numérico a un texto descriptivo.
-     * Útil para mostrar en reportes y exportaciones.
+     * Escala 0-10.
      *
      * Escala:
-     *   4.5 - 5.0  → "Excelente"
-     *   4.0 - 4.49 → "Muy Bueno"
-     *   3.0 - 3.99 → "Bueno"
-     *   2.0 - 2.99 → "Regular"
-     *   1.0 - 1.99 → "Malo"
+     *   9.0 - 10   → "Excelente"
+     *   7.0 - 8.99 → "Muy Bueno"
+     *   5.0 - 6.99 → "Bueno"
+     *   3.0 - 4.99 → "Regular"
+     *   0.0 - 2.99 → "Malo"
      */
     public function getSatisfactionLevel(): string
     {
         $avg = $this->getAverageScore();
         
-        if ($avg >= 4.5) return 'Excelente';
-        if ($avg >= 4) return 'Muy Bueno';
-        if ($avg >= 3) return 'Bueno';
-        if ($avg >= 2) return 'Regular';
+        if ($avg >= 9) return 'Excelente';
+        if ($avg >= 7) return 'Muy Bueno';
+        if ($avg >= 5) return 'Bueno';
+        if ($avg >= 3) return 'Regular';
         return 'Malo';
     }
 }

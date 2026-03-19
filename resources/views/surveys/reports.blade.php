@@ -78,7 +78,7 @@
             <div class="stat-card stat-green">
                 <i class="bi bi-star-fill stat-icon"></i>
                 @php
-                    $globalAvg = $totalSurveys > 0 ? array_sum(array_map(fn($v) => $v ?? 0, $averages)) / 5 : 0;
+                    $globalAvg = $totalSurveys > 0 ? array_sum(array_map(fn($v) => $v ?? 0, $averages)) / 4 : 0;
                 @endphp
                 <div class="stat-val">{{ number_format($globalAvg, 1) }}</div>
                 <div class="stat-label">Promedio General</div>
@@ -96,7 +96,7 @@
                 @foreach ($questions as $key => $question)
                     @php
                         $avg = $averages[$key] ?? 0;
-                        $percentage = ($avg / 5) * 100;
+                        $percentage = ($avg / 10) * 100;
                         if ($percentage >= 80) $barColor = '#002395';
                         elseif ($percentage >= 60) $barColor = '#1a5276';
                         else $barColor = '#154360';
@@ -104,7 +104,7 @@
                     <div class="col-md-6 mb-4">
                         <div class="mb-2 d-flex justify-content-between align-items-center">
                             <strong style="font-size:.88rem;">{{ $question }}</strong>
-                            <span class="avg-badge">{{ number_format($avg, 2) }}/5</span>
+                            <span class="avg-badge">{{ number_format($avg, 2) }}/10</span>
                         </div>
                         <div class="progress progress-franco" style="height: 22px; border-radius: 8px; background: #eef0f9;">
                             <div class="progress-bar" role="progressbar"
@@ -129,11 +129,10 @@
                 <thead>
                     <tr>
                         <th>Participante</th>
-                        <th class="text-center">Experiencia</th>
-                        <th class="text-center">Comida</th>
-                        <th class="text-center">Organización</th>
-                        <th class="text-center">Recomendaría</th>
-                        <th class="text-center">Volvería</th>
+                        <th class="text-center">Presentación</th>
+                        <th class="text-center">Atención</th>
+                        <th class="text-center">Satisfacción</th>
+                        <th class="text-center">Recomendación</th>
                         <th class="text-center">Nivel</th>
                         <th>Comentarios</th>
                         <th>Fecha</th>
@@ -142,12 +141,7 @@
                 <tbody>
                     @forelse ($surveys as $survey)
                         @php
-                            $scoreClass = fn($v) => $v >= 4 ? 'score-high' : ($v >= 3 ? 'score-mid' : 'score-low');
-                            $q1Label = fn($v) => match($v) { 1 => 'Muy Mala', 2 => 'Mala', 3 => 'Regular', 4 => 'Buena', 5 => 'Excelente', default => '—' };
-                            $q2Label = fn($v) => str_repeat('★', $v);
-                            $q3Label = fn($v) => match($v) { 1 => 'Muy Mal', 2 => 'Mal', 3 => 'Regular', 4 => 'Bien', 5 => 'Muy Bien', default => '—' };
-                            $q4Label = fn($v) => match($v) { 1 => 'De ninguna forma', 2 => 'Poco probable', 3 => 'Tal vez', 4 => 'Probablemente', 5 => 'Definitivamente', default => '—' };
-                            $q5Label = fn($v) => match($v) { 1 => 'No', 2 => 'Poco probable', 3 => 'Tal vez', 4 => 'Probablemente', 5 => 'Sí, seguro', default => '—' };
+                            $scoreClass = fn($v) => $v >= 8 ? 'score-high' : ($v >= 5 ? 'score-mid' : 'score-low');
                         @endphp
                         <tr>
                             <td>
@@ -155,11 +149,10 @@
                                 <br>
                                 <small class="text-muted">{{ $survey->participant->correo }}</small>
                             </td>
-                            <td class="text-center"><span class="score-badge {{ $scoreClass($survey->q1) }}">{{ $q1Label($survey->q1) }}</span></td>
-                            <td class="text-center"><span class="score-badge {{ $scoreClass($survey->q2) }}">{{ $q2Label($survey->q2) }}</span></td>
-                            <td class="text-center"><span class="score-badge {{ $scoreClass($survey->q3) }}">{{ $q3Label($survey->q3) }}</span></td>
-                            <td class="text-center"><span class="score-badge {{ $scoreClass($survey->q4) }}">{{ $q4Label($survey->q4) }}</span></td>
-                            <td class="text-center"><span class="score-badge {{ $scoreClass($survey->q5) }}">{{ $q5Label($survey->q5) }}</span></td>
+                            <td class="text-center"><span class="score-badge {{ $scoreClass($survey->q1) }}">{{ $survey->q1 }}/10</span></td>
+                            <td class="text-center"><span class="score-badge {{ $scoreClass($survey->q2) }}">{{ $survey->q2 }}/10</span></td>
+                            <td class="text-center"><span class="score-badge {{ $scoreClass($survey->q3) }}">{{ $survey->q3 }}/10</span></td>
+                            <td class="text-center"><span class="score-badge {{ $scoreClass($survey->q4) }}">{{ $survey->q4 }}/10</span></td>
                             <td class="text-center">
                                 <span class="avg-badge">{{ $survey->getSatisfactionLevel() }}</span>
                             </td>
@@ -176,7 +169,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="9" class="text-center text-muted py-4">
+                            <td colspan="8" class="text-center text-muted py-4">
                                 <i class="bi bi-inbox" style="font-size:1.5rem;"></i><br>
                                 No hay encuestas registradas aún
                             </td>

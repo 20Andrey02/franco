@@ -50,16 +50,15 @@ class SurveysExport implements FromCollection, WithHeadings, WithStyles
                 return [
                     // Datos del participante (accedidos vía la relación)
                     'Participante' => $survey->participant->nombre . ' ' . $survey->participant->paterno,
-                    'Email' => $survey->participant->correo,     // Campo 'correo', no 'email'
+                    'Email' => $survey->participant->correo,
                     'Ciudad' => $survey->participant->ciudad,
-                    // Las 5 preguntas Likert (1-5)
-                    'P1: Experiencia General' => $survey->q1,
-                    'P2: Comida y Bebidas' => $survey->q2,
-                    'P3: Organización' => $survey->q3,
+                    // Las 4 preguntas (0-10)
+                    'P1: Presentación en francés' => $survey->q1,
+                    'P2: Atención en stands' => $survey->q2,
+                    'P3: Satisfacción con el evento' => $survey->q3,
                     'P4: Recomendación' => $survey->q4,
-                    'P5: Repetiría' => $survey->q5,
-                    // Calcular promedio de las 5 respuestas (2 decimales)
-                    'Promedio' => number_format(($survey->q1 + $survey->q2 + $survey->q3 + $survey->q4 + $survey->q5) / 5, 2),
+                    // Calcular promedio de las 4 respuestas (2 decimales)
+                    'Promedio' => number_format(($survey->q1 + $survey->q2 + $survey->q3 + $survey->q4) / 4, 2),
                     'Comentarios' => $survey->comentarios,
                     // Formatear fecha a día/mes/año hora:minuto
                     'Fecha' => $survey->created_at->format('d/m/Y H:i'),
@@ -77,11 +76,10 @@ class SurveysExport implements FromCollection, WithHeadings, WithStyles
             'Participante',
             'Email',
             'Ciudad',
-            'P1: Experiencia General',
-            'P2: Comida y Bebidas',
-            'P3: Organización',
+            'P1: Presentación en francés',
+            'P2: Atención en stands',
+            'P3: Satisfacción con el evento',
             'P4: Recomendación',
-            'P5: Repetiría',
             'Promedio',
             'Comentarios',
             'Fecha',

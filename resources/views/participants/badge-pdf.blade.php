@@ -126,11 +126,11 @@
 
     <div class="badge-body">
         <p class="participant-name">{{ $participant->nombre }} {{ $participant->paterno }} {{ $participant->materno }}</p>
-        <p class="participant-email">{{ $participant->correo }}</p>
+        <p class="participant-email">{{ $loginEmail }}</p>
 
         @if($participant->qr_code)
         <div class="qr-container">
-            {!! $qrSvg !!}
+            <img src="data:image/svg+xml;base64,{{ $qrBase64 }}" width="180" height="180">
             <p class="qr-code-text">{{ $participant->qr_code }}</p>
             <p class="qr-hint">Escanear en cada estand</p>
         </div>
@@ -139,7 +139,7 @@
 
     <div class="badge-footer">
         <strong>Accede a tu dashboard:</strong><br>
-        Correo: <strong>{{ $participant->correo }}</strong><br>
+        Correo: <strong>{{ $loginEmail }}</strong><br>
         Contraseña: <strong>{{ $participant->qr_code }}</strong>
     </div>
 </div>

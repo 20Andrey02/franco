@@ -16,7 +16,7 @@
 |   - municipio   → Municipio (opcional)
 |   - sexo        → M (Masculino), F (Femenino), O (Otro)
 |   - correo      → Email del participante (ÚNICO, no se llama 'email')
-|   - qr_code     → Código QR generado (ej: FRANCO-000042)
+|   - qr_code     → Código QR generado (ej: FR-042)
 |   - created_at  → Fecha de registro (automático de Laravel)
 |   - updated_at  → Fecha de última actualización (automático)
 |

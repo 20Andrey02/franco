@@ -281,6 +281,9 @@
                 <button onclick="window.print()" class="btn btn-outline-secondary">
                     <i class="bi bi-printer me-2"></i>Imprimir reporte
                 </button>
+                <button onclick="exportToExcel()" class="btn btn-success">
+                    <i class="bi bi-file-earmark-excel me-2"></i>Exportar a Excel
+                </button>
             </div>
         </div>
     </div>
@@ -433,8 +436,65 @@
 @endsection
 
 @push('scripts')
+<!-- SheetJS para exportar a Excel -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="{{ asset('js/chart.umd.min.js') }}"></script>
 <script>
+// ── Excel Export ──
+function exportToExcel() {
+    if (typeof XLSX === 'undefined') {
+        alert('La librería para exportar a Excel no se ha cargado.');
+        return;
+    }
+
+    var wb = XLSX.utils.book_new();
+
+    // 1. Estands
+    var wsStandsData = [['Estand', 'Platillo', 'Encargado', 'Visitas']];
+    fullStands.forEach(function(s) {
+        wsStandsData.push([s.nombre, s.platillo || '—', s.encargado || '—', s.visitas]);
+    });
+    var wsStands = XLSX.utils.aoa_to_sheet(wsStandsData);
+    XLSX.utils.book_append_sheet(wb, wsStands, 'Estands');
+
+    // 2. Participantes por sexo
+    var wsSexData = [
+        ['Sexo', 'Cantidad'],
+        ['Masculino', sexData.M],
+        ['Femenino', sexData.F],
+        ['Otro', sexData.O]
+    ];
+    var wsSex = XLSX.utils.aoa_to_sheet(wsSexData);
+    XLSX.utils.book_append_sheet(wb, wsSex, 'Sexo');
+
+    // 3. Visitas por hora
+    var wsHoursData = [['Hora', 'Visitas']];
+    for (var h = 0; h < 24; h++) {
+        wsHoursData.push([h + ':00 - ' + h + ':59', fullHoursData[h] || 0]);
+    }
+    var wsHours = XLSX.utils.aoa_to_sheet(wsHoursData);
+    XLSX.utils.book_append_sheet(wb, wsHours, 'Horas');
+
+    // 4. Visitantes
+    var wsVisitorsData = [['Nombre', 'Ciudad', 'Visitas']];
+    fullVisitors.forEach(function(v) {
+        wsVisitorsData.push([v.nombre, v.ciudad, v.visitas]);
+    });
+    var wsVisitors = XLSX.utils.aoa_to_sheet(wsVisitorsData);
+    XLSX.utils.book_append_sheet(wb, wsVisitors, 'Visitantes');
+
+    // 5. Ciudades
+    var wsCitiesData = [['Ciudad', 'Participantes']];
+    Object.keys(fullCities).forEach(function(c) {
+        wsCitiesData.push([c, fullCities[c]]);
+    });
+    var wsCities = XLSX.utils.aoa_to_sheet(wsCitiesData);
+    XLSX.utils.book_append_sheet(wb, wsCities, 'Ciudades');
+
+    // Guardar el archivo
+    XLSX.writeFile(wb, 'Reporte_Visitas_Francofonia.xlsx');
+}
+
 // ── Tab switcher ──
 function showTab(tab) {
     document.getElementById('tab-usuario').style.display = tab === 'usuario' ? 'block' : 'none';
